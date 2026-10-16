@@ -1,5 +1,7 @@
 # Lab 11 · Scenario Forge — lò rèn kịch bản
 
+**Bối cảnh capstone — Cliff Rescue:** chạy `python -m http.server 8013 --bind 127.0.0.1`, mở [viewer/river.html](http://127.0.0.1:8013/viewer/river.html). Đường núi và vực sâu dựng quanh đoạn đường/ngã ba đã có; xe dự đoán rơi, bật 4 bộ đẩy dưới gầm, ổn định pitch/roll và đáp an toàn. Có bàn phím, cảm biến tách module, bảng debug và kết nối JavaScript/WebSocket. Xem [README cảnh cứu hộ](viewer/river/README.md) và [hợp đồng tích hợp](viewer/river/INTEGRATION.md). Trong viewer cũ chọn **11 đường núi · cứu hộ**.
+
 **Track 4 · CV & Robotics · Day 11: Synthetic, simulated & trajectory data.** Cá nhân, 4 giờ, laptop hoặc Colab, chỉ cần `numpy` và `pytest`. Không GPU, không API key.
 
 Bạn là kỹ sư kiểm thử của một đội xe tự lái. Planner của đội chạy trong một thị trấn mô phỏng: một con phố, một xe buýt đỗ trước vạch qua đường, một xe hàng xóm muốn chuyển làn, một người đi bộ, một xe bám đuôi. Trên 1 000 lần chạy ngẫu nhiên, planner gần như không bao giờ va chạm. Câu hỏi của bạn:
