@@ -1,4 +1,4 @@
-# Executed flight-control audit ? 2026-10-16
+# Executed flight-control audit - 2026-10-16
 
 Branch: `feat/thanh-flight-control`. Baseline HEAD before this work:
 `11fed89049e27efb3c375fa2a1dd183039dd78fb`. Existing flight-control files and the
@@ -20,7 +20,7 @@ part of this change. No reset/clean/discard was performed.
   proxies; explicit unavailable sensors/uncertainty and unknown safety assessment.
 - Two JSON Schema 2020-12 contracts, strict exports, independent physics/accounting
   validation, CSV option, scenario runner, SHA-256 manifest and handoff archive.
-- Corrected Three.js basis rotation sign: `[x,y,z] -> [x,z,-y]` is -90? about X.
+- Corrected Three.js basis rotation sign: `[x,y,z] -> [x,z,-y]` is -90 degrees about X.
 
 Environment: Python 3.11.9; NumPy 2.4.6; SciPy 1.17.1; pytest 9.1.1;
 jsonschema 4.26.0. Only the required JSON Schema validator and its dependencies

@@ -62,7 +62,7 @@ Each `samples[]` row includes:
 | --- | --- |
 | `time_s` | Endpoint simulation time, seconds |
 | `interval_start_s`, `interval_dt_s` | Interval that supplied commands/dynamics; null at the initial sample |
-| `physics_ground_truth` | True endpoint position m, velocity m/s, quaternion wxyz, body angular velocity rad/s, mass kg, fuel kg, inertia kg m?, clearance m, kinetic energies J and contact record |
+| `physics_ground_truth` | True endpoint position m, velocity m/s, quaternion wxyz, body angular velocity rad/s, mass kg, fuel kg, inertia kg m^2, clearance m, kinetic energies J and contact record |
 | `physics_ground_truth.acceleration_world_m_s2` | Free-flight interval-start derivative, excluding rigid impulse; null at t=0 |
 | `physics_ground_truth.angular_acceleration_body_rad_s2` | Interval-start body derivative; excludes impulse |
 | `physics_ground_truth.dynamics_evaluation_time_s`, `dynamics_evaluation_state` | Exact state/time used for derivatives, force frame and seat acceleration |
