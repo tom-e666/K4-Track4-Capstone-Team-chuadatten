@@ -14,7 +14,7 @@
   document.body.classList.add("skyfall-mode");
   document.title="SKYFALL | Three Tower Challenge";
   const style=document.createElement("style");
-  style.textContent=\`
+  style.textContent=`
     body.skyfall-mode .rail,body.skyfall-mode .bar,body.skyfall-mode .hint {display:none!important;}
     body.skyfall-mode #labels {display:none!important;}
     .skyfall-panel {position:absolute;top:16px;left:16px;width:338px;max-height:calc(100vh - 32px);
@@ -36,10 +36,10 @@
     .skyfall-help {position:fixed;right:18px;bottom:16px;z-index:4;background:#0e243acb;
        color:#dfecf5;padding:9px 14px;border-radius:10px;font:12px system-ui,sans-serif;}
     @media(max-width:720px){.skyfall-panel{width:calc(100% - 32px);max-height:51vh}.skyfall-help{display:none}}
-  \`;
+  `;
   document.head.appendChild(style);
   const panel=document.createElement("section");panel.className="skyfall-panel";
-  panel.innerHTML=\`
+  panel.innerHTML=`
     <h1>SKYFALL</h1><div class="subtitle">THREE-TOWER · AUTONOMOUS RECOVERY LAB</div>
     <label for="sf-scenario">Tình huống</label>
     <select id="sf-scenario"><option value="jump">01 · Precision Tower Jump</option>
@@ -67,7 +67,7 @@
     <div id="sf-benchmark" aria-live="polite"></div>
     <div class="small">Mô hình giả định: xe có thruster, physics 2D, view 3D.
     Kết quả không chứng nhận an toàn phương tiện thật.</div>
-  \`;
+  `;
   document.body.appendChild(panel);
   const help=document.createElement("div");help.className="skyfall-help";
   help.textContent="A → B → C  •  Cửa xanh = vùng xuyên qua  •  Kết cấu = va chạm";
