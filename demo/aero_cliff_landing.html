@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cứu hộ khí động</title>
+<link rel="stylesheet" href="aero_cliff_landing.css">
+</head>
+<body>
+<div class="app" id="app">
+  <div id="stage" aria-label="Mô phỏng 3D: xe mất phanh trên đường đèo, rơi khỏi vực; lidar, radar, camera đo khoảng cách tới đất và kích hoạt jet khí lạnh để đáp nhẹ. Kéo để xoay, cuộn để phóng to."><div id="labels"></div><div id="pip"></div><div id="cabinHud" hidden></div></div>
+  <div class="hint" id="hint">Kéo để xoay · cuộn để phóng · ← → đổi bước · C đổi camera (có góc người lái / cabin) · Space chạy/dừng</div>
+  <div class="toast" id="toast" hidden></div>
+
+  <aside class="rail" aria-label="Các bước thuật toán">
+    <div class="rail-head">
+      <div class="brand">Cứu hộ khí động</div>
+      <button class="theme-btn" id="themeBtn" type="button" aria-label="Đổi nền sáng hoặc tối"><span data-v="light">Sáng</span><span data-v="dark">Tối</span></button>
+      <div class="brand-sub">Một chiếc SUV điện cỡ trung mất phanh trên đèo, lộn vòng và rơi tự do. Jet khí lạnh ở gầm, nóc và hai bên hông dập cả lộn vòng lẫn lật ngang, đưa xe về thế đứng; lidar, radar, camera đo khoảng cách tới đất; đúng độ cao tính toán, jet gầm và cánh gió phanh khí hãm để đáp nhẹ. Mock thuật toán, từng bước một.</div>
+    </div>
+    <div class="loop" aria-hidden="true">
+      <svg viewBox="0 0 360 92">
+        <rect class="simframe" x="4" y="4" width="352" height="84" rx="12"/>
+        <text x="14" y="18">vòng điều khiển · 240 Hz</text>
+        <path class="ring" d="M36 56 H324"/>
+        <g class="node" data-n="0"><circle cx="36" cy="56" r="7"/><text x="36" y="80" text-anchor="middle">đèo</text></g>
+        <g class="node" data-n="1"><circle cx="93.6" cy="56" r="7"/><text x="93.6" y="80" text-anchor="middle">IMU</text></g>
+        <g class="node" data-n="2"><circle cx="151.2" cy="56" r="7"/><text x="151.2" y="80" text-anchor="middle">chống lộn</text></g>
+        <g class="node" data-n="3"><circle cx="208.8" cy="56" r="7"/><text x="208.8" y="80" text-anchor="middle">cảm biến</text></g>
+        <g class="node" data-n="4"><circle cx="266.4" cy="56" r="7"/><text x="266.4" y="80" text-anchor="middle">cứu hộ</text></g>
+        <g class="node" data-n="5"><circle cx="324" cy="56" r="7"/><text x="324" y="80" text-anchor="middle">chạm đất</text></g>
+        <path class="ring" d="M266 48 C266 36 252 34 237 34 C222 34 209 36 209 48" style="stroke-dasharray:3 4"/>
+        <text x="290" y="25" text-anchor="middle" style="font-weight:500">đo lại 20–30 Hz ↺</text>
+      </svg>
+    </div>
+    <nav class="chapters" id="chapters" aria-label="Bước"></nav>
+    <div class="body" id="body"></div>
+  </aside>
+
+  <div class="bar" role="group" aria-label="Điều khiển thời gian">
+    <button class="play" id="play" type="button" aria-label="Chạy hoặc dừng">▶</button>
+    <button class="tbtn" id="restart" type="button" aria-label="Chạy lại từ đầu">↺</button>
+    <button class="tbtn" id="speed" type="button" aria-label="Tốc độ phát">1×</button>
+    <div class="scrub"><div class="ticks" id="ticks"></div><input id="time" type="range" min="0" max="30" step="0.01" value="0" aria-label="Thời gian mô phỏng"></div>
+    <div class="tread" id="tread">0,0 s</div>
+    <select class="tbtn cam" id="camSel" aria-label="Góc camera">
+      <option value="auto">🎥 theo bước</option><option value="side">bên hông</option><option value="rear">phía sau</option><option value="front">phía trước</option>
+      <option value="top">từ trên xuống</option><option value="drone">drone bay vòng</option><option value="ground">từ mặt đất</option><option value="onboard">camera mũi xe</option><option value="pov">mắt người lái</option><option value="cabin">trong cabin</option></select>
+    <button class="tbtn cam" id="pipBtn" type="button" aria-pressed="true">đa góc</button>
+  </div>
+</div>
+
+<script src="../viewer/vendor/three.min.js"></script>
+<script src="aero_cliff_landing.js"></script>
+</body>
+</html>

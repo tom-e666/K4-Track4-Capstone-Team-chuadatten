@@ -1295,6 +1295,13 @@
   var last = performance.now(), wheelRot = new Float32Array(NA), lastT = st.t;
   function frame(now) {
     var dtReal = Math.min(0.05, (now - last) / 1000); last = now;
+    // New experimental 3-tower flight mode. The original Lab 11 render loop is untouched otherwise.
+    if (window.Skyfall && window.Skyfall.active) {
+      window.Skyfall.tick(dtReal);
+      renderer.render(scene, camera);
+      requestAnimationFrame(frame);
+      return;
+    }
     var prevT = st.t;
     if (st.playing) { st.t += dtReal * st.speed; if (st.t >= T_END) { st.t = 0; TRK = {}; lastPF = -1; } }
     var t = st.t;
@@ -1397,4 +1404,8 @@
   if (!REDUCED && start === 0) { rig.dist = 260; rig.pitch = 1.35; rig.yaw = 2.2; camTo({ dist: CH[0].cam.dist, yaw: CH[0].cam.yaw, pitch: CH[0].cam.pitch }, 3600); }
   requestAnimationFrame(frame);
   window.__vlms = { st: st, go: go, rig: rig, env: env, applyEnv: applyEnv, get R() { return R; }, get PLAN() { return PLAN; }, get PRED() { return PRED; } };
+  // Reuse original scene, renderer, lighting, city and car model from the SKYFALL plugin.
+  window.__skyfallBridge = { scene: scene, world: world, camera: camera,
+    renderer: renderer, carMesh: carMesh, rig: rig,
+    actors: actorObj, parked: parkedObj, ghost: ghost };
 })();
