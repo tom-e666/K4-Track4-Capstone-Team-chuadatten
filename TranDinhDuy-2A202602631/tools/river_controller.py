@@ -1,7 +1,7 @@
 """Reference navigation server. Replace navigate() with the team's real planner.
 
-Run: python tools/river_controller.py
-Then connect ws://127.0.0.1:8765 from viewer/river.html.
+Run: python TranDinhDuy-2A202602631/tools/river_controller.py
+Then connect ws://127.0.0.1:8765 from TranDinhDuy-2A202602631/viewer/river.html.
 """
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ import math
 try:
     from websockets.asyncio.server import serve
 except ImportError:
-    raise SystemExit("Install the optional adapter: python -m pip install -r tools/river-requirements.txt")
+    raise SystemExit("Install the optional adapter: python -m pip install -r TranDinhDuy-2A202602631/tools/river-requirements.txt")
 
 
 def clamp(value: float, low: float, high: float) -> float:

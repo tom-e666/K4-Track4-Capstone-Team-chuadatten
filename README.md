@@ -1,6 +1,6 @@
 # Lab 11 · Scenario Forge — lò rèn kịch bản
 
-**Bối cảnh capstone — Cliff Rescue:** chạy `python -m http.server 8013 --bind 127.0.0.1`, mở [viewer/river.html](http://127.0.0.1:8013/viewer/river.html). Đường núi và vực sâu dựng quanh đoạn đường/ngã ba đã có; xe dự đoán rơi, bật 4 bộ đẩy dưới gầm, ổn định pitch/roll và đáp an toàn. Có bàn phím, cảm biến tách module, bảng debug và kết nối JavaScript/WebSocket. Xem [README cảnh cứu hộ](viewer/river/README.md) và [hợp đồng tích hợp](viewer/river/INTEGRATION.md). Trong viewer cũ chọn **11 đường núi · cứu hộ**.
+**Phần đóng góp của Trần Đình Duy — 2A202602631:** toàn bộ mô phỏng xe cua muộn, trượt văng, xoay và dùng vòi đẩy cứu hộ nằm trong [TranDinhDuy-2A202602631](TranDinhDuy-2A202602631/README.md). Chạy `python -m http.server 8013 --bind 127.0.0.1` từ gốc repo, mở [Cliff Rescue](http://127.0.0.1:8013/TranDinhDuy-2A202602631/viewer/river.html), hoặc chọn **11 đường núi · cứu hộ** trong viewer gốc. Có 3 scenario hạ cánh, cảm biến tách module và kết nối JavaScript/WebSocket; xem [hợp đồng tích hợp](TranDinhDuy-2A202602631/viewer/river/INTEGRATION.md).
 
 **Track 4 · CV & Robotics · Day 11: Synthetic, simulated & trajectory data.** Cá nhân, 4 giờ, laptop hoặc Colab, chỉ cần `numpy` và `pytest`. Không GPU, không API key.
 

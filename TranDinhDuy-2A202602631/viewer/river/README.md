@@ -1,4 +1,4 @@
-﻿# Cliff Rescue — K4 Track 4
+# Cliff Rescue — K4 Track 4
 
 Prototype xe cứu hộ trên đường núi, dùng lại đoạn đường và ngã ba của cảnh hiện có. **Tài xế mất tập trung → phanh/cua muộn → lốp trượt → xe văng và xoay → vòi quanh thân hãm xoay → 4 bộ đẩy dưới gầm nâng xe → đáp sang bờ bên kia.** Không có cánh quạt hay tay đòn bên ngoài thân xe.
 
@@ -10,7 +10,7 @@ Từ thư mục gốc dự án:
 python -m http.server 8013 --bind 127.0.0.1
 ```
 
-Mở **http://127.0.0.1:8013/viewer/river.html**. Trong viewer gốc cũng có lối vào chương 11. Trang chạy offline, dùng Three.js đã có; cần WebGL và HTTP server vì mã dùng ES modules.
+Mở **http://127.0.0.1:8013/TranDinhDuy-2A202602631/viewer/river.html**. Trong viewer gốc cũng có lối vào chương 11. Trang chạy offline, dùng Three.js đã có; cần WebGL và HTTP server vì mã dùng ES modules.
 
 Mặc định tự cứu hộ. Có thể tua demo bằng thanh thời gian. Khi nhận thao tác lái/cứu hộ, demo chuyển sang mô phỏng live tại trạng thái đang xem. Bấm khung cảnh 3D trước khi dùng bàn phím.
 
@@ -74,9 +74,9 @@ river/
 **Đã triển khai để tích hợp:** lực đẩy riêng cho 4 góc với smoothing/clamp, pitch/roll torque + PD, cảm biến và state machine tách module, JavaScript hooks, WebSocket có kiểm tra run/seq và timeout, xuất JSON có sensor/command/thruster ở mỗi bước.
 
 ```powershell
-node --test tests/river-core.test.cjs tests/river-adapters.test.cjs tests/rescue-modules.test.cjs tests/skid-scenarios.test.cjs
-python -m pip install -r tools/river-requirements.txt
-python tools/river_controller.py
+node --test TranDinhDuy-2A202602631/tests/river-core.test.cjs TranDinhDuy-2A202602631/tests/river-adapters.test.cjs TranDinhDuy-2A202602631/tests/rescue-modules.test.cjs TranDinhDuy-2A202602631/tests/skid-scenarios.test.cjs
+python -m pip install -r TranDinhDuy-2A202602631/tools/river-requirements.txt
+python TranDinhDuy-2A202602631/tools/river_controller.py
 # Trong giao diện: ws://127.0.0.1:8765 -> Kết nối bộ thật
 ```
 

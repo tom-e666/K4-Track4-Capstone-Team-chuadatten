@@ -1,4 +1,4 @@
-﻿# Hợp đồng tích hợp Cliff Rescue
+# Hợp đồng tích hợp Cliff Rescue
 
 [Chạy, bàn phím và cấu trúc thư mục](README.md). Mã dùng ES modules, không cần bundler. `river.html` giữ đoạn đường/nhánh ngã ba hiện có và dựng thêm vực sâu, núi và khu đáp.
 
@@ -107,8 +107,8 @@ RiverDemo.setController({
 ## WebSocket
 
 ```powershell
-python -m pip install -r tools/river-requirements.txt
-python tools/river_controller.py
+python -m pip install -r TranDinhDuy-2A202602631/tools/river-requirements.txt
+python TranDinhDuy-2A202602631/tools/river_controller.py
 ```
 
 Mở giao diện, bấm **Kết nối bộ thật** với `ws://127.0.0.1:8765`. Đây là server kiểm tra giao thức chạy mock; thay `navigate(observation)` bằng planner của team, giữ envelope:
@@ -149,7 +149,7 @@ Các hook sau reset lần chạy, trừ model/cảnh chỉ thay hiển thị:
 
 Terrain vật lý và scene hiển thị là hai adapter riêng; thay mesh chưa tự đổi queries. Engine hiện hỗ trợ mặt đất hai bờ y=0; vùng đáp ở cao độ/nghiêng khác cần mở rộng physics/contact trong engine. Raycasts trong Three.js có thể được cài bên trong terrain adapter để thay truy vấn giải tích hiện tại.
 
-Dùng Node không cần DOM: `const {Engine,mockCommand}=await import('./viewer/river/core.js')`. Constructor thứ hai của Engine nhận dependencies `{terrain,sensors,predictor,guidance,landingPolicy,landingZoneProvider}`, nên có thể tích hợp và test ngoài giao diện.
+Dùng Node không cần DOM: `const {Engine,mockCommand}=await import('./TranDinhDuy-2A202602631/viewer/river/core.js')`. Constructor thứ hai của Engine nhận dependencies `{terrain,sensors,predictor,guidance,landingPolicy,landingZoneProvider}`, nên có thể tích hợp và test ngoài giao diện.
 
 ## State machine và xuất dữ liệu
 
@@ -164,12 +164,12 @@ Xuất JSON **river-run/2**: config, controller, mode, dt, completed/outcome, ev
 ## Kiểm thử
 
 ```powershell
-node --test tests/river-core.test.cjs tests/river-adapters.test.cjs tests/rescue-modules.test.cjs tests/skid-scenarios.test.cjs
+node --test TranDinhDuy-2A202602631/tests/river-core.test.cjs TranDinhDuy-2A202602631/tests/river-adapters.test.cjs TranDinhDuy-2A202602631/tests/rescue-modules.test.cjs TranDinhDuy-2A202602631/tests/skid-scenarios.test.cjs
 # HTTP + WebSocket server mẫu đang chạy:
 python -m pip install playwright
 python -m playwright install chromium
-python tests/river_browser_smoke.py
+python TranDinhDuy-2A202602631/tests/river_browser_smoke.py
 # Hoặc thêm --browser "đường-dẫn/chrome.exe" nếu đã cài Chromium
 ```
 
-Ảnh và lần chạy test ở evidence/river/ (gitignore). Bao gồm mô phỏng ngang vực, lực/mô-men từng vòi, hồi phục pitch/roll, hover, cảm biến thay thế, bàn phím, mobile/laptop, export và WebSocket thật. Thư viện Three.js được lưu sẵn trong viewer/vendor; không phụ thuộc CDN hoặc assets thương hiệu.
+Ảnh và lần chạy test ở TranDinhDuy-2A202602631/evidence/river/ (gitignore). Bao gồm mô phỏng ngang vực, lực/mô-men từng vòi, hồi phục pitch/roll, hover, cảm biến thay thế, bàn phím, mobile/laptop, export và WebSocket thật. Thư viện Three.js được lưu sẵn trong viewer/vendor; không phụ thuộc CDN hoặc assets thương hiệu.

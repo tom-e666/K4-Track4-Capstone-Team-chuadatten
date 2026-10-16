@@ -1,7 +1,7 @@
 """Optional end-to-end check against running HTTP and reference navigator servers.
 
-python tests/river_browser_smoke.py [--browser /path/to/chrome] [--artifacts evidence/river]
-Requires Playwright and an installed Chromium browser. See viewer/river/INTEGRATION.md.
+python TranDinhDuy-2A202602631/tests/river_browser_smoke.py [--browser /path/to/chrome] [--artifacts evidence/river]
+Requires Playwright and an installed Chromium browser. See TranDinhDuy-2A202602631/viewer/river/INTEGRATION.md.
 """
 import argparse
 import json
@@ -12,10 +12,10 @@ from playwright.sync_api import sync_playwright
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--url", default="http://127.0.0.1:8013/viewer/river.html")
+    parser.add_argument("--url", default="http://127.0.0.1:8013/TranDinhDuy-2A202602631/viewer/river.html")
     parser.add_argument("--websocket-url", default="ws://127.0.0.1:8765")
     parser.add_argument("--browser", default=None)
-    parser.add_argument("--artifacts", default="evidence/river")
+    parser.add_argument("--artifacts", default=str(Path(__file__).resolve().parents[1] / "evidence" / "river"))
     args = parser.parse_args()
     artifacts = Path(args.artifacts)
     artifacts.mkdir(parents=True, exist_ok=True)

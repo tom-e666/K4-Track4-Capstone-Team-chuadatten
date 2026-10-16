@@ -868,7 +868,7 @@
   // ---------------------------------------------------------------- chapter switching
   var nav = $("chapters"), bodyEl = $("body");
   CH.forEach(function (c, i) { var b = document.createElement("button"); b.type = "button"; b.textContent = c.short; b.addEventListener("click", function () { go(i); }); nav.appendChild(b); });
-  var riverLink = document.createElement("a"); riverLink.href = "river.html";
+  var riverLink = document.createElement("a"); riverLink.href = "../TranDinhDuy-2A202602631/viewer/river.html";
   riverLink.textContent = "11 đường núi · cứu hộ ↗";
   riverLink.style.cssText = "display:block;padding:7px 10px;color:var(--teal);font-size:12px;border:1px solid var(--line);border-radius:7px;margin-top:5px;text-decoration:none";
   nav.appendChild(riverLink);
