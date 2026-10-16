@@ -66,7 +66,18 @@
     THRUSTERS.push({ r: [x, 0.1, 0], d: [0, 0, s], name: (x > 0 ? "mũi" : "đuôi") + (s > 0 ? " →phải" : " →trái") }); }); });
   THRUSTERS.forEach(function (t) { t.tq = cross(t.r, t.d); t.yaw = Math.abs(t.tq[1]) > Math.abs(t.tq[0]) && Math.abs(t.tq[1]) > Math.abs(t.tq[2]); });
 
-  var THR_DEFAULTS = { on: true, F: 2500, isp: 70, fuel: 15, lat: 0.02 };            // N per thruster, s, kg of N2, valve latency s
+  /* thrusters: F per nozzle [N], isp [s] (N2 cold gas: ~73 s in vacuum, ~65 s at sea level), fuel = N2 mass [kg],
+     dry = tank (composite, 300 bar) + 12 valves + piping [kg], P0 = tank pressure [bar], lat = valve latency [s],
+     reg = pressure-regulated (constant thrust) or blowdown (thrust falls with the remaining tank pressure) */
+  var THR_DEFAULTS = { on: true, F: 2500, isp: 65, fuel: 15, dry: 30, P0: 300, lat: 0.02, reg: true };
+  var VEH_DEFAULTS = { m: 2000 };   // kerb mass [kg]; inertia and suspension scale with it (the CAR values are for 2000 kg)
+  function n2Density(Pbar) { var Z = 1 + 0.00035 * Pbar; return Pbar * 1e5 * 0.028 / (8.314 * 293 * Z); }   // kg/m^3 at 20 C (rough Z)
+  /* mass budget of the thruster system, for the panel and the README */
+  function budget(veh, th) {
+    var rho = n2Density(th.P0), tankL = th.fuel / rho * 1000, sys = th.dry + th.fuel, mdot = th.F / (th.isp * G);
+    return { car: veh.m, sys: sys, total: veh.m + sys, pct: 100 * sys / veh.m, tankL: tankL, mdot: mdot,
+             burn4: th.fuel / (4 * mdot), impulse: th.fuel * th.isp * G };
+  }
   var EST_DEFAULTS = { mode: "gated", gyroSig: 0.01, gyroBias: 0.02, accSig: 0.25, kp: 5.0, gnssP: 0.3, gnssV: 0.1, init: 1.5 };
   var CTRL_DEFAULTS = { kp: 10, kd: 5, db: 0.08, yawW: 0.6, retro: true, retroT: 0.6 };
   // landing classes: on the wheels with tilt <= 25 deg and sink <= 9 m/s (about a 4 m free fall) is "safe"
@@ -116,7 +127,7 @@
       var yawErr = Math.atan2(cross(hx, hn)[1], dot(hx, hn));
       phi = add(phi, qinv(o.q, [0, yawErr * K.yawW, 0]));
     }
-    var tau = [0, 1, 2].map(function (i) { return CAR.I[i] * (K.kp * phi[i] - K.kd * o.w[i]); });
+    var tau = [0, 1, 2].map(function (i) { return o.I[i] * (K.kp * phi[i] - K.kd * o.w[i]); });
     var sg = [0, 1, 2].map(function (i) { return Math.abs(tau[i]) > K.db * o.tauMax[i] ? Math.sign(tau[i]) : 0; });
     // retro burn: nearly upright and about to land -> all upward corner thrusters soften the touchdown,
     // minus any whose torque would fight an attitude correction still in progress
@@ -140,14 +151,18 @@
     var sk = opts.scenario || "berm", P = Object.assign({}, SCEN[sk].params, opts.params || {});
     var TH = Object.assign({}, THR_DEFAULTS, opts.thr || {}), EST = Object.assign({}, EST_DEFAULTS, opts.est || {}), K = Object.assign({}, CTRL_DEFAULTS, opts.ctrl || {});
     var ctrl = opts.controller || baselineController, mem = {};
-    var ter = makeTerrain(P), r = rng(opts.seed || 1), gauss = gaussFn(r), m = CAR.m, I = CAR.I;
+    var ter = makeTerrain(P), r = rng(opts.seed || 1), gauss = gaussFn(r);
+    // mass: the car, plus the thruster system (dry + gas) only when it is fitted; the car gets lighter as gas is vented
+    var VEH = Object.assign({}, VEH_DEFAULTS, opts.veh || {}), ms = VEH.m / CAR.m, I = CAR.I.map(function (x) { return x * ms; });
+    var fuel = TH.on ? TH.fuel : 0, mBase = VEH.m + (TH.on ? TH.dry : 0), m = mBase + fuel;
+    var kS = CAR.kS * m / CAR.m, cS = CAR.cS * m / CAR.m, cLat = CAR.cLat * m / CAR.m;   // same ride height for any mass
     var tauMax = [0, 1, 2].map(function (i) { return THRUSTERS.reduce(function (s, t) { return s + Math.max(0, t.tq[i]) * TH.F; }, 0); });
 
     // initial state: on its wheels, suspension at rest, moving at v0 along heading psi, body yawed by `slide` (a skid)
     var psi = P.psi * D2R, yaw = (P.psi + (P.slide || 0)) * D2R;
     var p = [0, ter.H(0, P.z0) + CAR.comH, P.z0], v = [P.v0 * Math.cos(psi), 0, P.v0 * Math.sin(psi)], q = qyaw(yaw), w = [0, 0, 0];
-    var comp0 = m * G / (4 * CAR.kS), compPrev = [comp0, comp0, comp0, comp0];
-    var fuel = TH.fuel, Fng = [0, m * G, 0];
+    var comp0 = m * G / (4 * kS), compPrev = [comp0, comp0, comp0, comp0];
+    var Fng = [0, m * G, 0];
 
     // sensors and estimator state
     var bias = [gauss() * EST.gyroBias, gauss() * EST.gyroBias, gauss() * EST.gyroBias];
@@ -192,7 +207,7 @@
         var tiltE = tiltOf(qe);
         if (tRollWarn == null && tiltE > 50) { tRollWarn = t; ev(t, "warn", "cảnh báo lật (ước lượng > 50°)"); }
         // controller -> commands take effect after the valve latency
-        cmdHist[f] = TH.on ? ctrl({ t: t, q: qe, w: gm, v: ve, p: pe, air: air, tti: tti, fuel: fuel, tauMax: tauMax }, mem, K) : 0;
+        cmdHist[f] = TH.on ? ctrl({ t: t, q: qe, w: gm, v: ve, p: pe, air: air, tti: tti, fuel: fuel, tauMax: tauMax, I: I }, mem, K) : 0;
         active = f >= latF ? cmdHist[f - latF] : 0;
         if (fuel <= 0) active = 0;
         // record
@@ -214,14 +229,14 @@
         var pen = ter.H(end[0], end[2]) - end[1];
         if (pen <= 0) { compPrev[k] = 0; continue; }
         var comp = Math.min(pen / yb[1], CAR.susLen), crate = (comp - compPrev[k]) / DT; compPrev[k] = comp;
-        var fs = Math.max(0, CAR.kS * comp + CAR.cS * crate);
+        var fs = Math.max(0, kS * comp + cS * crate);
         if (fs <= 0) continue;
         contact = true;
         var cp = sub(hub, scl(yb, CAR.susLen - comp)), n = ter.normal(cp[0], cp[2]);
         var vc = add(v, cross(wW, sub(cp, p))), vt = sub(vc, scl(n, dot(vc, n)));
         var fw = nrm(sub(xb, scl(n, dot(xb, n)))), lw = cross(n, fw), mu = ter.mu(cp[0], cp[2]), cap = mu * fs;
         var vl = dot(vt, lw), vf = dot(vt, fw);
-        var Fl = -clamp(CAR.cLat * vl, -cap, cap), Ff = -clamp(CAR.cLat * vf, -CAR.crr * fs, CAR.crr * fs);
+        var Fl = -clamp(cLat * vl, -cap, cap), Ff = -clamp(cLat * vf, -CAR.crr * fs, CAR.crr * fs);
         applyW(add(scl(n, fs), add(scl(lw, Fl), scl(fw, Ff))), cp);
       }
       // hull points: penalty spring-damper along the ground normal + Coulomb friction
@@ -239,14 +254,16 @@
       }
       // thrusters
       if (active && fuel > 0) {
-        var nOn = 0;
+        var nOn = 0, Fe = TH.F * (TH.reg ? 1 : fuel / TH.fuel);   // blowdown: thrust follows the tank pressure (isothermal, p ~ gas mass)
         for (var j = 0; j < THRUSTERS.length; j++) {
           if (!(active & (1 << j))) continue;
           var T = THRUSTERS[j]; nOn++;
-          Fn = add(Fn, qrot(q, scl(T.d, TH.F))); tauB = add(tauB, scl(T.tq, TH.F));
+          Fn = add(Fn, qrot(q, scl(T.d, Fe))); tauB = add(tauB, scl(T.tq, Fe));
         }
-        fuel -= nOn * TH.F / (TH.isp * G) * DT;
+        fuel -= nOn * Fe / (TH.isp * G) * DT;
+        if (!TH.reg && fuel < 0.05 * TH.fuel) fuel = 0;               // blowdown: below 5 % the pressure no longer makes useful thrust
         if (fuel <= 0 && tFuelOut == null) { fuel = 0; tFuelOut = t; ev(t, "fuel", "hết khí nén"); }
+        m = mBase + Math.max(0, fuel);
       }
       // an external hit (scenario "impact"): a short force pulse at the left rear quarter
       if (P.dv > 0 && t >= P.tImp && t < P.tImp + 0.08) {
@@ -299,7 +316,7 @@
       R: REC, events: events.sort(function (a, b) { return a.t - b.t; }), terrain: ter, params: P, thr: TH, est: EST, scenario: sk,
       summary: {
         outcome: outcome, roofHit: roofHit, sideHit: sideHit, upFinal: upFinal, maxTilt: maxTilt, peakG: peakG,
-        airtime: main ? main.dur : 0, touch: first, fuelUsed: TH.fuel - fuel, tDetect: tDetect, tLaunch: tLaunch,
+        airtime: main ? main.dur : 0, touch: first, fuelUsed: (TH.on ? TH.fuel : 0) - fuel, mass0: mBase + (TH.on ? TH.fuel : 0), tDetect: tDetect, tLaunch: tLaunch,
         detectLatency: tDetect != null && tLaunch != null ? tDetect - tLaunch : null, tRollWarn: tRollWarn, estErrTouch: errAtTouch
       }
     };
@@ -330,10 +347,12 @@
     base = base || {};
     var P = randomParams(seed), row = { seed: seed, params: P, out: {} };
     CONFIGS.forEach(function (c) {
-      var r = rollout({ scenario: "berm", params: P, thr: Object.assign({}, base.thr || {}, c.thr), est: Object.assign({}, base.est || {}, c.est), ctrl: base.ctrl, seed: seed });
+      var r = rollout({ scenario: "berm", params: P, thr: Object.assign({}, base.thr || {}, c.thr), est: Object.assign({}, base.est || {}, c.est), ctrl: base.ctrl, veh: base.veh, seed: seed });
       var s = r.summary;
-      row.out[c.key] = { outcome: s.outcome, tilt: s.touch ? s.touch.tilt : null, sink: s.touch ? s.touch.sink : null, estErr: s.estErrTouch,
-                         air: s.airtime, fuel: s.fuelUsed, maxTilt: s.maxTilt, detect: s.detectLatency };
+      // severity proxy (not an injury model): roof contact is the worst case in real rollovers (roof crush)
+      var sev = s.outcome === "safe" ? "safe" : s.outcome === "hard" ? "hard" : s.roofHit ? "roof" : "side";
+      row.out[c.key] = { outcome: s.outcome, sev: sev, tilt: s.touch ? s.touch.tilt : null, sink: s.touch ? s.touch.sink : null, estErr: s.estErrTouch,
+                         air: s.airtime, fuel: s.fuelUsed, maxTilt: s.maxTilt, detect: s.detectLatency, tLaunch: s.tLaunch };
     });
     return row;
   }
@@ -351,7 +370,7 @@
 
   var api = {
     G: G, DT: DT, FDT: FDT, T_END: T_END, NF: NF, CAR: CAR, SAFE: SAFE, HULL: HULL, THRUSTERS: THRUSTERS, SCEN: SCEN,
-    THR_DEFAULTS: THR_DEFAULTS, EST_DEFAULTS: EST_DEFAULTS, CTRL_DEFAULTS: CTRL_DEFAULTS, RANGES: RANGES, CONFIGS: CONFIGS,
+    THR_DEFAULTS: THR_DEFAULTS, VEH_DEFAULTS: VEH_DEFAULTS, budget: budget, EST_DEFAULTS: EST_DEFAULTS, CTRL_DEFAULTS: CTRL_DEFAULTS, RANGES: RANGES, CONFIGS: CONFIGS,
     rollout: rollout, makeTerrain: makeTerrain, baselineController: baselineController, wilson: wilson, randomParams: randomParams, evalSeed: evalSeed, summarize: summarize,
     qrot: qrot, qinv: qinv, tiltOf: tiltOf, rollOf: rollOf
   };

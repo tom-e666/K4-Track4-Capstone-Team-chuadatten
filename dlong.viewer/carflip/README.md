@@ -30,6 +30,31 @@ Giám khảo có thể kéo thanh trượt (tốc độ, góc lệch, độ cao 
   - Phanh ngược ở 0,6 s cuối.
   - Van có độ trễ 20 ms, khí nén có hạn (Isp 70 s).
 
+## Khối lượng và khí nén (giả định, chỉnh được trên giao diện)
+
+| Thành phần | Mặc định | Ghi chú |
+|---|---|---|
+| Xe | 2 000 kg (chọn nhanh 1,4 / 2,0 / 2,6 t) | Quán tính, lò xo, ma sát lốp tỉ lệ theo khối lượng |
+| Hệ thống khô | 30 kg | Bình composite 300 bar, 12 van, ống dẫn |
+| Khí N₂ | 15 kg ≈ 48 L ở 300 bar | Khối lượng xe giảm dần khi xả khí |
+| Vòi phun | 2,5 kN mỗi vòi, Isp 65 s (N₂ ở mặt biển) | 3,9 kg/s mỗi vòi; 4 vòi mở liên tục được ~0,96 s; tổng xung ~9,6 kN·s |
+| Van | trễ 20 ms; có van giảm áp (lực không đổi) | Tắt van giảm áp = bình xả áp, lực giảm theo áp suất còn lại |
+
+Hệ thống cộng thêm ~2,3 % khối lượng xe 2 t. Xe "không vòi phun" trong so sánh là xe không lắp hệ thống (nhẹ hơn 45 kg).
+
+## Phòng lab (sau khi bấm "Chạy đánh giá")
+
+Mỗi chấm là một kịch bản Monte Carlo. Màu là mức độ khi tiếp đất: **an toàn**, **tiếp đất cứng** (nguy cơ chấn thương nhẹ), **lật nghiêng**, **lật ngửa, nóc chạm đất** (nguy cơ chấn thương nặng: trong các vụ lật thật, nóc bị ép là nguyên nhân chấn thương nặng chính). Đây là chỉ báo theo cách tiếp đất, không phải mô hình chấn thương.
+
+- Chọn cấu hình để tô màu, hoặc **So sánh** để thấy kịch bản nào được vòi phun cứu, kịch bản nào vẫn hỏng, kịch bản nào tệ hơn khi có vòi phun.
+- Trục tự chọn; mặc định thời gian bay × nghiêng lớn nhất (không vòi phun) cho thấy vùng cứu được: bay đủ lâu thì xoay lại kịp.
+- Rê chuột để xem tham số và kết quả 4 cấu hình; bấm để chạy lại đúng kịch bản đó trong cảnh 3D (khớp từng bit với lần đánh giá).
+- Mở `index.html#mc100` để tự chạy đánh giá khi mở trang (tiện khi demo).
+
+## Chế độ demo tự chạy
+
+Mở `index.html#demo` (phóng to cửa sổ, bấm quay màn hình rồi mở trang): trang tự đi qua 8 bước (khoảng 100 s) với phụ đề: bài toán, so sánh có và không vòi phun, cách xe biết tư thế, ca lỗi bộ lọc ngây thơ, Monte Carlo, phòng lab chế độ So sánh, giới hạn. Dưới phụ đề có nút **Cảnh trước / Cảnh sau** (phím ← →), **Tạm dừng tự chuyển** để nói lâu hơn ở một cảnh, và **Thoát** (Esc) để tự thao tác.
+
 ## Trụ cột Track 4 trong hệ thống
 
 | Trụ cột | Nằm ở đâu |
@@ -46,9 +71,9 @@ Giám khảo có thể kéo thanh trượt (tốc độ, góc lệch, độ cao 
 | Cấu hình | Tiếp đất an toàn | KTC 95% (Wilson) | Cứu được* | Sai số tư thế lúc chạm |
 |---|---|---|---|---|
 | Không vòi phun | 7/100 | 3–14% | – | – |
-| Vòi phun + ước lượng có cổng | **86/100** | 78–91% | 81/93 | 3,1° |
-| Vòi phun + bộ lọc ngây thơ (ca lỗi) | 72/100 | 63–80% | 66/93 | 11,1° |
-| Vòi phun + tư thế thật (cận trên) | 91/100 | 84–95% | 84/93 | 0° |
+| Vòi phun + ước lượng có cổng | **83/100** | 74–89% | 77/93 | 3,0° |
+| Vòi phun + bộ lọc ngây thơ (ca lỗi) | 64/100 | 54–73% | 59/93 | 10,5° |
+| Vòi phun + tư thế thật (cận trên) | 85/100 | 77–91% | 79/93 | 0° |
 
 \* Trong 93 kịch bản mà xe không vòi phun không tiếp đất an toàn, cấu hình đó cứu được bao nhiêu.
 
@@ -56,7 +81,7 @@ Giám khảo có thể kéo thanh trượt (tốc độ, góc lệch, độ cao 
 
 ## Ca lỗi
 
-1. **Bộ lọc ngây thơ tin gia tốc kế khi đang bay.** Khi rơi tự do, gia tốc kế chỉ đo được nhiễu; khi vòi phun bật, nó đo lực đẩy. Bộ lọc coi các số đo đó là "hướng lên", nên tư thế ước lượng trôi sai (sai số lúc chạm đất 11° so với 3°), và tỉ lệ an toàn giảm từ 86% xuống 72%.
+1. **Bộ lọc ngây thơ tin gia tốc kế khi đang bay.** Khi rơi tự do, gia tốc kế chỉ đo được nhiễu; khi vòi phun bật, nó đo lực đẩy. Bộ lọc coi các số đo đó là "hướng lên", nên tư thế ước lượng trôi sai (sai số lúc chạm đất 10,5° so với 3°), và tỉ lệ an toàn giảm từ 83% xuống 64%.
    - Sửa: dùng cổng tin cậy (chỉ dùng gia tốc kế khi |f| ≈ 1 g và xe không bay).
    - Xem trực tiếp: chọn **Ngây thơ** và bật **Khung tư thế xe tự ước lượng**.
 2. **Lật do vấp** (kịch bản "trượt ngang"). Xe chỉ bay ~0,3–0,5 s, lật tiếp trên mặt đất, và vòi phun hết khí mà không cứu được. Đây là giới hạn vật lý, không phải lỗi phần mềm: mô-men cần thiết lớn hơn 10–20 lần mức vòi phun cung cấp.
