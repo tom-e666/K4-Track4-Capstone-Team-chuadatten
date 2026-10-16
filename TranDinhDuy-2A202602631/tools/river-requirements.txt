@@ -1,0 +1,2 @@
+# Optional: only needed for the Python WebSocket navigator.
+websockets>=14,<17

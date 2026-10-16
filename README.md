@@ -1,5 +1,7 @@
 # Lab 11 · Scenario Forge — lò rèn kịch bản
 
+**Phần đóng góp của Trần Đình Duy — 2A202602631:** toàn bộ mô phỏng xe cua muộn, trượt văng, xoay và dùng vòi đẩy cứu hộ nằm trong [TranDinhDuy-2A202602631](TranDinhDuy-2A202602631/README.md). Chạy `python -m http.server 8013 --bind 127.0.0.1` từ gốc repo, mở [Cliff Rescue](http://127.0.0.1:8013/TranDinhDuy-2A202602631/viewer/river.html), hoặc chọn **11 đường núi · cứu hộ** trong viewer gốc. Có 3 scenario hạ cánh, cảm biến tách module và kết nối JavaScript/WebSocket; xem [hợp đồng tích hợp](TranDinhDuy-2A202602631/viewer/river/INTEGRATION.md).
+
 **Track 4 · CV & Robotics · Day 11: Synthetic, simulated & trajectory data.** Cá nhân, 4 giờ, laptop hoặc Colab, chỉ cần `numpy` và `pytest`. Không GPU, không API key.
 
 Bạn là kỹ sư kiểm thử của một đội xe tự lái. Planner của đội chạy trong một thị trấn mô phỏng: một con phố, một xe buýt đỗ trước vạch qua đường, một xe hàng xóm muốn chuyển làn, một người đi bộ, một xe bám đuôi. Trên 1 000 lần chạy ngẫu nhiên, planner gần như không bao giờ va chạm. Câu hỏi của bạn:

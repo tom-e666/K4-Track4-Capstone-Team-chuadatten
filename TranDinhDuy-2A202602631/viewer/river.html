@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Cliff Rescue · K4 Capstone</title>
+  <link rel="stylesheet" href="river/style.css">
+</head>
+<body>
+  <main class="app">
+    <div id="viewport" aria-label="Đường núi và vực sâu, xe cứu hộ với bốn bộ đẩy dưới gầm"></div>
+    <header class="header">
+      <a class="back" href="../../viewer/index.html" aria-label="Về trình mô phỏng gốc">←</a>
+      <div><span class="eyebrow">K4 / TRACK 4 / RESCUE PROTOTYPE</span><h1>Cliff Rescue<span class="dot">.</span></h1></div>
+      <div class="header-right"><span class="live-dot"></span><span id="controllerLabel">ĐIỀU HƯỚNG MOCK</span><span class="badge">3D SIMULATION</span></div>
+    </header>
+
+    <aside class="panel scenario-panel">
+      <div class="section-title"><span>01 — ĐƯỜNG NÚI</span><span class="small-tag">VỰC SÂU</span></div>
+      <h2>Cua không kịp.<br><em>Cân bằng để cứu xe.</em></h2>
+      <p class="intro">Tài xế mất tập trung, phanh và cua muộn. Xe trượt văng, xoay trên không; vòi quanh thân hãm xoay, vòi dưới gầm nâng xe sang bờ bên kia.</p>
+      <label class="preset-label" for="scenarioPreset">KỊCH BẢN MẪU</label>
+      <select id="scenarioPreset"><option value="direct">01 · Cua muộn — đáp thẳng</option><option value="wet">02 · Đường ướt — tiếp cận vòng</option><option value="spin">03 · Xoay mạnh — giữ cao rồi đáp</option><option value="custom">Tự điều chỉnh</option></select>
+      <details class="debug-panel scenario-settings">
+        <summary>Tai nạn &amp; phương án hạ cánh</summary>
+        <label for="driverDelay">Độ trễ tài xế <output id="driverDelayValue">1.05 s</output></label>
+        <input id="driverDelay" type="range" min="0" max="1.8" step="0.05" value="1.05">
+        <label for="grip">Độ bám mặt đường <output id="gripValue">45%</output></label>
+        <input id="grip" type="range" min="0.15" max="1" step="0.05" value="0.45">
+        <label for="spinIntensity">Xung xoay khi văng <output id="spinIntensityValue">1.8 rad/s</output></label>
+        <input id="spinIntensity" type="range" min="0" max="4" step="0.1" value="1.8">
+        <label for="rescueDelay">Trễ cứu hộ sau khi văng <output id="rescueDelayValue">0.55 s</output></label>
+        <input id="rescueDelay" type="range" min="0" max="1.4" step="0.05" value="0.55">
+        <label for="landingStyle">Cách tiếp cận khu đáp</label>
+        <select id="landingStyle"><option value="direct">Đáp thẳng</option><option value="arc">Bay vòng để căn chỉnh</option><option value="hover">Giữ cao độ rồi đáp</option></select>
+        <label for="landingOffset">Vị trí khu đáp ngang bờ <output id="landingOffsetValue">0 m</output></label>
+        <input id="landingOffset" type="range" min="-12" max="12" step="1" value="0">
+      </details>
+      <div class="mode-switch" role="group" aria-label="Khả năng bay">
+        <button id="flightOn" class="selected" aria-pressed="true">↗ Có hệ đẩy</button>
+        <button id="flightOff" aria-pressed="false">↓ Tắt hệ đẩy</button>
+      </div>
+      <div class="controls">
+        <label for="riverWidth"><span>Độ rộng vực</span><output id="widthValue">24 m</output></label>
+        <input id="riverWidth" type="range" min="12" max="48" step="2" value="24">
+        <label for="initialSpeed"><span>Vận tốc ban đầu</span><output id="speedValue">79 km/h</output></label>
+        <input id="initialSpeed" type="range" min="12" max="30" step="1" value="22">
+        <label for="brakeDistance"><span>Bắt đầu phanh trước mép bờ</span><output id="brakeValue">9 m</output></label>
+        <input id="brakeDistance" type="range" min="6" max="25" step="1" value="9">
+      </div>
+      <div class="phase-card"><span id="phaseIcon">01</span><div><strong id="phaseText">Tiếp cận ngã ba</strong><p id="phaseDetail">Giữ hướng đến đoạn giao sát bờ sông.</p></div></div>
+      <ol class="steps" aria-label="Các bước của kịch bản"><li>Cua muộn</li><li>Trượt &amp; xoay</li><li>Cân bằng</li><li>Hạ cánh</li></ol>
+      <div class="legend"><span><i class="teal"></i>Đường cứu hộ</span><span><i class="gold"></i>Dự đoán rơi</span></div>
+      <button id="activateRescue" class="rescue-button">↑ Kích hoạt cứu hộ <kbd>Space</kbd></button>
+      <div class="manual-buttons"><button id="hover">Giữ độ cao <kbd>H</kbd></button><button id="land">Hạ cánh <kbd>L</kbd></button></div>
+      <details id="debugPanel" class="debug-panel">
+        <summary>Thông số &amp; cảm biến thử nghiệm</summary>
+        <label for="gravity">Trọng lực <output id="gravityValue">9.81 m/s²</output></label>
+        <input id="gravity" type="range" min="3" max="15" step="0.01" value="9.81">
+        <label for="maxLift">Gia tốc đẩy tối đa <output id="maxLiftValue">24 m/s²</output></label>
+        <input id="maxLift" type="range" min="12" max="36" step="1" value="24">
+        <output id="thresholdValue" hidden>92%</output>
+        <input id="rescueThreshold" type="hidden" value="0.92">
+        <label class="check"><input id="autoRescue" type="checkbox" checked> Cứu hộ tự động <kbd>E</kbd></label>
+        <label class="check"><input id="showRays" type="checkbox"> Hiện tia cảm biến</label>
+        <label class="check"><input id="showFall" type="checkbox" checked> Hiện đường rơi dự đoán</label>
+        <label class="check"><input id="showRescue" type="checkbox" checked> Hiện đường cứu hộ</label>
+        <div class="debug-buttons"><button id="forceFall">Thử rơi tự do</button><button id="teleportEdge">Đến mép vực</button><button id="debugReset">Đặt lại <kbd>R</kbd></button></div>
+      </details>
+    </aside>
+
+    <div class="telemetry panel" aria-label="Trạng thái xe">
+      <div><span>VẬN TỐC</span><strong id="metricSpeed">79<small> km/h</small></strong></div>
+      <div><span>ĐỘ CAO / ĐỊA HÌNH</span><strong id="metricAltitude">0.0<small> m</small></strong></div>
+      <div><span>CÁCH MÉP BỜ</span><strong id="metricEdge">92.7<small> m</small></strong></div>
+      <div><span>QUÃNG PHANH CẦN</span><strong id="metricStop">44.0<small> m</small></strong></div>
+      <div><span>VẬN TỐC ĐỨNG</span><strong id="metricVertical">0.0<small> m/s</small></strong></div>
+      <div><span>PITCH / ROLL</span><strong id="metricAttitude">0° / 0°</strong></div>
+      <div><span>RỦI RO VỰC</span><strong id="metricRisk">0<small>%</small></strong></div>
+      <div><span>TIẾP XÚC</span><strong id="metricContact">Mặt đất</strong></div>
+    </div>
+
+    <aside class="right-rail">
+      <section class="panel navigation-panel">
+        <div class="section-title"><span>02 — ĐIỀU HƯỚNG</span><span id="navMode" class="small-tag teal-text">MOCK</span></div>
+        <canvas id="minimap" width="520" height="300" aria-label="Bản đồ ngã ba, sông và khu đáp"></canvas>
+        <div class="nav-destination"><span class="target-icon">◎</span><div><strong>Bờ đối diện</strong><span id="destinationDistance">141 m đến khu đáp</span></div><span class="heading">E →</span></div>
+        <p id="landingPlan" class="landing-plan">Đáp thẳng</p>
+        <div class="actuators">
+          <label>TRƯỚC TRÁI<span><i id="frontLeftBar"></i></span><output id="frontLeftValue">0%</output></label>
+          <label>TRƯỚC PHẢI<span><i id="frontRightBar"></i></span><output id="frontRightValue">0%</output></label>
+          <label>SAU TRÁI<span><i id="rearLeftBar"></i></span><output id="rearLeftValue">0%</output></label>
+          <label>SAU PHẢI<span><i id="rearRightBar"></i></span><output id="rearRightValue">0%</output></label>
+        </div>
+        <div class="rcs-readout"><span>VÒI QUANH THÂN</span><strong id="rcsPower">0%</strong><span>XOAY</span><strong id="rotationRate">0°/s</strong></div>
+        <div class="sensor-summary"><span id="sensorRoad">Đang đọc cảm biến</span><span id="zoneStatus">Khu đáp sẵn sàng</span></div>
+      </section>
+      <section class="panel connection-panel">
+        <div class="section-title"><span>03 — BỘ ĐIỀU KHIỂN</span></div>
+        <div class="connection-state"><i id="connectionDot"></i><span id="connectionStatus" role="status">Mock đang sẵn sàng</span></div>
+        <label class="sr-only" for="socketUrl">Địa chỉ WebSocket bộ điều hướng</label>
+        <input id="socketUrl" type="url" value="ws://127.0.0.1:8765" spellcheck="false">
+        <div class="connection-buttons"><button id="connect">Kết nối bộ thật</button><button id="useMock">Dùng mock</button></div>
+        <a href="river/INTEGRATION.md" target="_blank" rel="noopener">Tài liệu kết nối cho đồng đội ↗</a>
+      </section>
+    </aside>
+
+    <div class="camera-controls" role="group" aria-label="Góc nhìn">
+      <button data-camera="overview" aria-pressed="false">◈ Toàn cảnh</button>
+      <button class="selected" data-camera="follow" aria-pressed="true">↗ Theo xe</button>
+      <button data-camera="top" aria-pressed="false">⊞ Từ trên</button>
+    </div>
+    <div id="worldLabel" class="world-label">BỜ BÊN KIA <span>LANDING ZONE</span></div>
+    <div id="danger" class="danger-banner" role="status" hidden>⚠ PHÁT HIỆN VỰC — ĐANG DỰ ĐOÁN RƠI</div>
+    <div id="result" class="result panel" hidden><span id="resultEyebrow">KẾT QUẢ KỊCH BẢN</span><h2 id="resultTitle"></h2><p id="resultDetail"></p><button id="resultReplay">↻ Chạy lại</button></div>
+    <div id="error" class="error panel" role="alert" hidden></div>
+    <footer class="transport panel">
+      <button id="play" class="play" aria-label="Tạm dừng">Ⅱ</button>
+      <button id="restart" class="icon-button" aria-label="Chạy lại từ đầu">↻</button>
+      <button id="playbackSpeed" class="speed-button" aria-label="Tốc độ phát">1×</button>
+      <div class="timeline"><label for="timeline">THỜI GIAN MÔ PHỎNG</label><input id="timeline" type="range" min="0" max="20" step="0.02" value="0"></div>
+      <output id="clock">00.00 <span>/ 00.00 s</span></output>
+      <button id="export" class="export-button">↓ Xuất lần chạy</button>
+    </footer>
+    <div class="viewport-hint">W/S ga/phanh · A/D lái · Space cứu hộ · E tự động · H giữ cao · L đáp · R đặt lại · P dừng</div>
+  </main>
+  <script src="../../viewer/vendor/three.min.js"></script>
+  <script type="module" src="river/src/main.js"></script>
+</body>
+</html>
