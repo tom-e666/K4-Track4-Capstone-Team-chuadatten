@@ -1,0 +1,14 @@
+[
+  {"cautionV": 5.0},
+  {"cautionV": 6.5},
+  {"cautionV": 6.0},
+  {"cautionV": 9.0},
+  {"cautionV": 8.5},
+  {"cutinLat": 2.6},
+  {"cutinLat": 3.0},
+  {"cutinLat": 3.3},
+  {"T": 2.0},
+  {"cutinLat": 3.0, "cautionV": 6.5},
+  {"cutinLat": 3.0, "cautionV": 7.0},
+  {"cutinLat": 2.6, "cautionV": 7.0, "pedBuffer": 3.5}
+]

@@ -1,0 +1,330 @@
+Bức tranh tổng thể: bạn đang kiểm thử một planner hiếm khi hỏng
+Về bài lab này
+Bài cá nhân: điền 10 TODO trong lab11/, chạy pipeline run_all.py để đo, săn và sửa thất bại hiếm của planner, dựng một rắc rối mới, rồi nộp code, evidence/ và REPORT.md lên VLearn.
+Bạn làm được gì sau bài này
+Điền 10 TODO trong lab11/*.py và qua 31 test của python -m pytest -q tests/test_todos.py.
+Báo xác suất va chạm bằng khoảng Wilson (mc.json) và importance sampling theo từng kiểu thất bại (estimate.json), không báo 0 cho kiểu chưa thấy.
+Chọn policy bằng choose_policy trên TRAIN và báo kết quả TEST trong fix.json.
+Dựng hazard.json ở chương 10 trình xem 3D, chạy python run_all.py mine hazard.json và phân loại va chạm avoidable / unavoidable / unattributed.
+Viết REPORT.md 9 câu, trích số đúng từ evidence/.
+Cần chuẩn bị
+Đọc và sửa được Python có numpy (mảng nhiều chiều, vectorise thay cho vòng lặp).
+Đã từng chạy pytest từ terminal.
+Biết xác suất cơ bản: tần suất, khoảng tin cậy, phân phối chuẩn.
+Có quyền truy cập repo Track4-Day11-Scenario-Forge-Student của VinUni-AI20k.
+Python 3 với numpy>=1.26 và pytest>=8 (laptop hoặc Colab; không cần GPU, không cần API key).
+Trình duyệt để mở viewer/index.html (chạy offline).
+node (tuỳ chọn, chỉ để chạy tests/test_parity.py).
+Lỗi thường gặp
+Write your MSSV on the first line of REPORT.md, digits only (MSSV: 2xxxxxxx). → Dòng đầu REPORT.md chưa có MSSV hoặc có ký tự lạ; sửa thành MSSV: kèm dãy số MSSV của bạn.
+step hunt needs TODO 5: cem_update. Finish that TODO (...) → Bước đó cần một TODO chưa làm; điền TODO được nêu tên, chạy lại pytest rồi chạy lại bước.
+evidence/hunt.json is missing: run python run_all.py hunt first. → Chạy bước sau trước bước trước; chạy lệnh được gợi ý rồi quay lại.
+tests/test_parity.py không in gì trong 20–90 s → Không treo, test đang chạy; chờ. Không có node thì test tự bỏ qua.
+Khoá K4 · Track 4 · Day 16: Synthetic, simulated & trajectory data.
+
+Trên 1 000 lần chạy ngẫu nhiên, planner gần như không bao giờ va chạm.
+Bạn là kỹ sư kiểm thử của một đội xe tự lái. Planner của đội chạy trong một thị trấn mô phỏng: một con phố, một xe buýt đỗ trước vạch qua đường, một xe hàng xóm muốn chuyển làn, một người đi bộ, một xe bám đuôi. Planner chạy ổn trên 1 000 lần chạy ngẫu nhiên. Việc của bạn là hỏi: nó va chạm bao lâu một lần, theo những kiểu nào, sửa rồi có đỡ thật không, và còn rắc rối nào chưa ai nghĩ tới.
+
+Cái khó là xác suất va chạm cỡ 10⁻³ hay 10⁻⁵. Đếm thô (Monte Carlo) cần hàng chục nghìn lần chạy mới thấy vài vụ. Thuật toán tìm kiếm thì dễ tìm thấy một kiểu va chạm rồi lặp mãi kiểu đó. Còn một planner "sửa xong" có thể chỉ đỡ trên đúng những kịch bản bạn đã nhìn.
+
+Việc của bạn là một bộ bằng chứng trung thực: 10 hàm TODO trong lab11/, các file evidence/*.json do run_all.py sinh ra, một hazard.json do bạn dựng, và REPORT.md 9 câu trích số từ chính evidence/ đó. Làm đúng nghĩa là grader chạy lại với MSSV của bạn trên bản sạch và ra cùng con số.
+
+Phần	Thư mục / file	Nói gọn
+Lõi mô phỏng	avsim/	Bản numpy của viewer/sim-core.js; chạy batch K kịch bản cùng lúc. Không được sửa.
+Code của bạn	lab11/	10 hàm TODO: đo, kiểm tra khả thi, ước lượng, săn, gắn nhãn kiểu, chọn policy.
+Pipeline	run_all.py	Chạy từng bước, ghi evidence/<bước>.json.
+Trình xem 3D	viewer/index.html	Chương 9 xem lại va chạm bạn tìm được; chương 10 dựng rắc rối mới.
+Báo cáo	REPORT.md	9 câu, MSSV ở dòng đầu.
+Thứ tự các bước của run_all.py
+world
+
+replay
+
+mc
+
+hunt
+
+estimate
+
+fix
+
+mine hazard.json
+
+export
+
+Mỗi bước đọc bằng chứng của bước trước: estimate cần hunt (và mc), fix và export cần hunt, mine dùng policy đã chọn ở fix nếu có. Bước B (is_feasible) không có lệnh riêng: nó chạy bên trong mọi bước sau.
+
+Luật quan trọng nhất: không bao giờ báo xác suất 0 chỉ vì chưa thấy
+Chưa thấy va chạm không có nghĩa là không có va chạm. Với k = 0, khoảng tin cậy chuẩn là [0, 0], tức "không bao giờ", và điều đó sai. Cả lab xoay quanh việc báo cận trên trung thực: khoảng Wilson ở Monte Carlo, upper_zero_hits = 3/(0,2·n) ở importance sampling, fail_hi ở bước sửa planner. RUBRIC trừ 4 điểm ở câu 3 và câu 4 nếu bạn báo 0 cho một kiểu chỉ vì chưa thấy.
+
+Track4-Day11-Scenario-Forge-Student
+git clone https://github.com/VinUni-AI20k/Track4-Day11-Scenario-Forge-Student.git
+
+Bước 1 — Dựng môi trường và kiểm tra lõi mô phỏng
+Lab chỉ cần numpy và pytest, chạy trên laptop hoặc Colab, không GPU, không API key. Trước khi viết dòng code nào, bạn cần ghi MSSV vì nó quyết định thị trấn của bạn (một trong 4 thị trấn A–D) và mọi seed.
+
+Vì sao 31 test đều đỏ ngay lần chạy đầu?
+Đây là trạng thái đúng của starter. Mọi hàm TODO đang raise NotImplementedError, nên tests/test_todos.py đỏ hết cho đến khi bạn điền. Ngược lại, python run_all.py world không cần TODO nào: nó chỉ kiểm tra lõi mô phỏng. Làm lần lượt như sau:
+
+1. Clone repo từ link ở trên, mở terminal ở thư mục gốc của repo, cài thư viện:
+pip install -r requirements.txt
+Chép
+1. Mở REPORT.md, ghi MSSV vào dòng đầu, chỉ có chữ số. run_all.py đọc dòng này; sai định dạng thì mọi bước dừng:
+MSSV: 2xxxxxxx
+Chép
+1. Chạy test và bước kiểm tra lõi:
+python -m pytest -q tests/test_todos.py
+python run_all.py world
+Chép
+1. Mở viewer/index.html bằng trình duyệt. Trình xem chạy offline, không cần mạng.
+Khi world chạy xong và có file evidence/world.json (câu chuyện mặc định của trình xem), môi trường đã sẵn sàng. Nếu thấy Write your MSSV on the first line of REPORT.md, digits only, kiểm tra lại dòng đầu REPORT.md.
+
+Có node thì chạy thêm python -m pytest -q tests/test_parity.py để kiểm tra Python và JS cho cùng kết quả. Test này mất 20–90 s và không in gì trong lúc chạy: chờ, nó không treo.
+
+MSSV quyết định mọi con số
+MSSV chọn thị trấn và seed. Grader chạy lại với MSSV trong danh sách lớp, không phải số bạn gõ. Ghi sai MSSV thì evidence/ của bạn không khớp lần chạy lại và mất điểm phần D (Trung thực).
+
+Sẵn sàng sang bước 2 khi0/4
+
+`pip install -r requirements.txt` chạy không lỗi.
+
+Dòng đầu `REPORT.md` là `MSSV:` kèm MSSV của bạn.
+
+`python run_all.py world` tạo được `evidence/world.json`.
+
+`viewer/index.html` mở được trong trình duyệt.
+Đoạn chọn quá dài để đánh dấu.
+
+Bước 2 — Hiểu luật chơi trước khi viết code
+Bước này chưa sửa gì. Mục tiêu là biết thế giới chạy ra sao, bạn bị chấm trên cái gì, và chỗ nào không được động vào. Grader chạy lại toàn bộ trên bản sạch, nên hiểu sai luật ở đây sẽ làm hỏng mọi bước sau.
+
+Thế giới trong lab gồm những gì?
+avsim mô phỏng một con phố. Một lần gọi chạy cả batch K kịch bản cùng lúc, khoảng 4 ms mỗi kịch bản.
+
+Các xe khác cư xử như người. Chúng lái theo IDM. Xe chuyển làn chờ một khe đủ rộng (gap acceptance), xe dừng nhường người qua đường, người đi bộ chờ đến khi xe gần nhất mà họ nhìn thấy còn đủ xa. Chỉ xe buýt đủ cao để che tầm nhìn. Hệ quả: thế giới phản ứng lại planner, nên đổi một núm chỉnh có thể đổi hành vi của người khác.
+Xe ta (ego) có 9 núm chỉnh trong avsim.POLICY: IDM (v0, T, a, b, s0), tốc độ thận trọng gần vạch bị che (cautionV, cautionRange), biên an toàn khi dự đoán người đi bộ (pedBuffer), và ngưỡng ngang để coi xe đang lấn sang là xe phía trước (cutinLat).
+Mỗi kịch bản là một vector ẩn u: 11 toạ độ liên tục chuẩn tắc N(0, 1) và 3 toạ độ bật/tắt (đường ướt, người đi bộ có ngó qua xe buýt không, xe chuyển làn có phanh ngay sau khi vào làn không). space.to_params đổi u thành tham số mô phỏng. Phân phối tự nhiên p(u) là giả định dạy học, không khớp dữ liệu thật; câu 7 của báo cáo hỏi về điều này.
+Bạn được chấm trên những gì?
+Tổng 100 điểm. Mọi điểm tính trên lần chạy lại của grader, không tính trên evidence/ bạn nộp, trừ phần D kiểm tra hai bản có khớp nhau.
+
+Nhóm	Tiêu chí (điểm)
+A · 10 TODO	Bộ test ẩn cùng dạng tests/test_todos.py, số khác; 3 điểm mỗi TODO (30).
+B · Pipeline	replay, mc, estimate, hunt, fix so với pipeline tham chiếu trên đúng seed của bạn; fix chạy với seed TEST bí mật (20).
+C · Báo cáo câu 1–8	Số khớp, giải thích đúng cơ chế (30).
+G · Rắc rối của bạn	hazard.json khả thi, space/exposure có căn cứ, câu 9 (10).
+D · Trung thực	evidence/ khớp lần chạy lại; số trong REPORT.md khớp evidence/ (10).
+A và C nặng nhất. Vì bộ test ẩn dùng số khác, code chỉ khớp đúng 31 test công khai sẽ không đủ: đọc kỹ docstring của từng hàm. Điểm B và D phụ thuộc vào việc bạn chạy bản đầy đủ, không phải --quick.
+
+Được sửa gì, không được sửa gì?
+Của bạn, sửa thoải mái: lab11/*.py, REPORT.md, hazard.json. Được thêm ứng viên vào policy_candidates.json.
+Không được sửa: avsim/, run_all.py, tests/, phân phối tự nhiên, seed. Grader thay chúng bằng bản sạch. Sửa để có con số đẹp hơn thì tổng điểm tối đa 40.
+Ứng viên policy phải nằm trong POLICY_LIMITS (trong run_all.py). Giá trị ngoài giới hạn bị loại vì đó không còn là một planner thật.
+Trần điểm cần nhớ
+fix chọn policy bằng dữ liệu TEST: tối đa 60. evidence/ tạo bằng --quick: phần D = 0. exposure hoặc space không có căn cứ trong why: phần G tối đa 2.
+
+Tự kiểm tra: Grader chấm trên evidence/ bạn nộp hay trên lần chạy lại? Vì sao không được sửa avsim/? Trả lời được thì sang bước 3.
+
+Bước 3 — Đo một kịch bản: phát lại log hay thế giới phản ứng (bước A, B)
+Trước khi đếm va chạm, bạn cần công cụ đọc một lần chạy: khoảng cách nguy hiểm nhất, loại tiếp xúc, quãng đường, và luật loại bỏ kịch bản vô lý. Bước A dùng các hàm đó để so hai cách kiểm thử planner trên cùng ~400 kịch bản.
+
+Phát lại log khác thế giới phản ứng ở đâu?
+Cùng một kịch bản chạy ba cách: người lái thật (log), planner trên log phát lại (xe khác chạy đúng như đã ghi), và planner trong thế giới phản ứng. Log nào có chính người lái va chạm thì bỏ, vì log thật không chứa tai nạn của chính nó. Câu 1 báo cáo hỏi vì sao phần lớn va chạm của "phát lại" là rear, và vì sao đó là va chạm giả: xe phía sau trong log không biết planner phanh sớm hơn người lái.
+
+Bạn viết bốn hàm nào?
+Mở lab11/metrics.py và lab11/feasible.py. Docstring của mỗi hàm là đặc tả.
+
+Hàm	TODO	Trả về
+metrics.min_ttc	1	(K,) TTC nhỏ nhất giữa xe ta và xe phía trước, chặn ở cap
+metrics.contact_type	2	'front', 'rear' hoặc 'side' tại khung va chạm
+metrics.progress_metrics	9	(quãng đường trong 24 s, số khung phanh gấp hơn 3 m/s²)
+feasible.is_feasible	3	False cho kịch bản không người thật nào tạo ra được
+1. min_ttc — xe ta còn bao nhiêu giây trước khi đâm vào xe trước? Xe phía trước ở khung f là R.EGO[k, f, 3] (-1 là không có). Khoảng hở tính dọc hướng xe ta, trừ nửa thân hai xe, chặn dưới ở 0. Chỉ tính TTC khi xe ta đang áp sát nhanh hơn 0,1 m/s. Kịch bản xe ta đã va chạm trả 0. Phải vectorise theo khung: vòng lặp Python qua 481 khung × K kịch bản quá chậm cho bước C.
+
+2. contact_type — ai đâm ai? Đặt xe kia vào hệ toạ độ của xe ta (lon, lat theo hướng hx, hz của xe ta). front nếu lon > 2.3 và |lat| < 1.6; rear nếu lon < -2.3 và |lat| < 1.6; còn lại là side. Test test_contact_type_uses_ego_heading kiểm tra bạn dùng hướng xe chứ không dùng trục x.
+
+3. progress_metrics — xe ta đi được bao xa và phanh gấp bao lần? Tổng các bước giữa hai khung liên tiếp; đếm khung có cột gia tốc < -3. Bước E dùng nó để phạt policy an toàn nhờ đứng yên.
+
+4. is_feasible — kịch bản này có xảy ra được ngoài đời không? Loại nếu chuyển làn cần gia tốc ngang (pi / cutDur)^2 * 3.5 / 2 lớn hơn mu * g, nếu cutBrake vượt mu * g, nếu người đi bộ chạy (pedV > 2.5 m/s), hoặc cutV không nằm trong (0, 22] m/s.
+
+Vì sao is_feasible quan trọng hơn nó trông
+Kịch bản bất khả thi thường là kịch bản "nguy hiểm" nhất, nên cuộc săn CEM ở bước sau bị kéo về phía chúng. Chạy kịch bản bất khả thi rồi đếm nó là thất bại nằm trong danh sách "Không được" của lab.
+
+Tự kiểm tra: chạy test rồi chạy bước A. Các test của TODO 1, 2, 3, 9 phải xanh; replay.json có số va chạm theo loại tiếp xúc. Nếu chạy replay trước khi xong TODO 1, 2, 9, lệnh vẫn chạy nhưng in (skipping ...) và để trống các trường đó: con số khi đó chưa có nghĩa.
+
+python -m pytest -q tests/test_todos.py
+python run_all.py replay
+
+Bước 4 — Đo một xác suất hiếm cho trung thực (bước C1, C2, C3)
+Đây là phần trung tâm của lab: ba cách đo cùng một xác suất hiếm, mỗi cách có một cái bẫy riêng. Bạn viết 5 hàm trong lab11/estimate.py, lab11/search.py, lab11/modes.py.
+
+C1 — Monte Carlo cho biết gì?
+run_all.py mc chạy 3 000 lần trên phân phối tự nhiên và đếm k va chạm trong n lần. TODO 4 estimate.wilson_ci trả khoảng Wilson: với k = 0, cận dưới là 0 nhưng cận trên > 0; với n = 0 trả (0, 1). Câu 3 báo cáo hỏi cần bao nhiêu lần chạy để khoảng hẹp còn ±20 % của p (RUBRIC: n ≈ 96/p).
+
+python run_all.py mc
+Chép
+C2 — Săn bằng cross-entropy (CEM) làm gì?
+Mỗi vòng: lấy mẫu từ đề xuất q, chạy, giữ 10 % nguy hiểm nhất theo điểm nguy hiểm của kiểu đó, khớp lại q. Kịch bản bất khả thi không bao giờ được chạy hay đếm.
+
+TODO 5 search.cem_update giữ elite = ceil(rho * n) hàng có điểm cao nhất (ít nhất 2, hoà điểm thì hàng trước thắng: np.argsort(-score, kind="stable")), rồi làm mượt mean, std, p_bin với đề xuất cũ. Có sàn min_std và kẹp p_clip vì std về 0 hoặc xác suất đúng 0/1 làm trọng số ở C3 nổ tung.
+
+TODO 8 modes.label_mode gắn tên kiểu cho mỗi va chạm, kiểm tra theo đúng thứ tự:
+
+Kiểu	Khi nào
+dart_out	xe ta đâm người đi bộ P1
+rear_ended	bị đâm từ phía sau (contact_type == 'rear')
+bus_bypass	xe ta đâm C2 khi C2 đang lách xe buýt: x < 112 m và chậm hơn 6 m/s
+cut_in	xe ta đâm C2 trong tình huống khác
+other	còn lại
+Vì CEM co về một kiểu (săn mãi một chỗ), mỗi kiểu có một cuộc săn riêng.
+
+python run_all.py hunt
+Chép
+C3 — Importance sampling sửa lệch thế nào?
+Rút mẫu từ hỗn hợp phòng thủ q = 0,8·CEM + 0,2·tự nhiên, gán trọng số w = p/q, ước lượng P(kiểu m) = mean(w·y).
+
+TODO 6 estimate.log_weights trả log p(u) − log q(u) với q là hỗn hợp. Dùng np.logaddexp để trọng số cỡ 1e-30 không bị làm tròn về 0.
+TODO 7 estimate.is_estimate trả p, lo, hi, se, ess, n. Lấy p = mean(w * y), không chuẩn hoá bằng sum(w) (bản đó chệch khi n nhỏ). ess là Kish ESS = (Σw)²/Σw².
+Kiểu không có va chạm nào thì báo cận trên upper_zero_hits = 3/(0,2·n), không báo 0, và không dùng 3/ESS: ESS đo trọng số lệch đến đâu, không phải số lần thử độc lập. Va chạm không thuộc kiểu nào (other) không được săn, nên phần của nó lấy từ Monte Carlo C1. Tổng = các kiểu + other.
+
+python run_all.py estimate
+Chép
+Đọc estimate.json thế nào?
+Trường	Ý nghĩa
+p, lo, hi	Ước lượng và khoảng ±1,96·se; khoảng này chỉ xấp xỉ
+hits	Số mẫu va chạm đúng kiểu
+ess	Kích thước mẫu hiệu dụng; nhỏ nghĩa là trọng số rất lệch
+top_share	Phần ước lượng do một mẫu nặng nhất mang
+other	Phần không thuộc kiểu nào, lấy từ mc.json
+Ba cái bẫy bạn phải báo cáo
+CEM co về một kiểu. Săn càng lâu q càng hẹp, ước lượng thường thấp hơn sự thật khoảng 1,5–4 lần và các seed chênh nhau vài lần. Cuộc săn tìm ra một cách va chạm, không nhất thiết cách hay xảy ra nhất. top_share thấp không chứng minh ước lượng đúng.
+
+Tự kiểm tra: cả 10 TODO trừ TODO 10 đã xanh. Trong hunt.json, cuộc săn bus_bypass và dart_out mỗi cuộc có ít nhất một va chạm đúng kiểu (RUBRIC B kiểm tra điều này). Ghi lại seed nào có top_share > 0,5 cho câu 4.
+
+
+Bước 5 — Xem va chạm trong 3D (bước F)
+Con số chỉ có nghĩa khi bạn thấy chuyện gì đã xảy ra. Trình xem 3D chạy lại từng kịch bản bằng chính lõi mô phỏng này, khớp từng bit với Python.
+
+1. Ghi file cho trình xem:
+python run_all.py export
+Chép
+1. Mở viewer/index.html, sang chương 9 · phòng lab, thả evidence/viewer.json vào.
+2. Đọc màn hình: mỗi chấm là một kịch bản bạn đã thử, đậm dần theo vòng săn; bấm một chấm để chạy kịch bản đó. Danh sách bên dưới là các va chạm đã lưu theo kiểu. Bóng mờ là xe ta với policy gốc trên cùng kịch bản.
+3. Kéo thanh thời gian đến đúng lúc va chạm rồi mới chụp. Lưu ảnh vào evidence/shots/ để dùng cho câu 5 (mỗi kiểu một ảnh) và câu 6 (ảnh có bóng mờ).
+export cần hunt. Chạy lại export sau bước 6 để trình xem có policy bạn đã chọn và bóng mờ có ý nghĩa.
+
+Tự kiểm tra: với mỗi kiểu đã tìm thấy, bạn có một ảnh đúng lúc va chạm và mô tả được chuỗi sự kiện: ai thấy gì, ai chờ gì.
+
+Nội dung này có hữu ích không?
+
+
+
+Bước 6 — Sửa planner, kiểm tra trung thực (bước E)
+Bạn đã biết planner hỏng ở đâu. Giờ chọn một bộ núm chỉnh tốt hơn mà không tự lừa mình: chỉnh trên TRAIN, báo trên TEST.
+
+def choose_policy(table: list[dict], baseline_progress: float, max_loss: float = 0.05):
+Chép
+Mỗi hàng của bảng trông thế nào?
+Trường	Ý nghĩa
+policy	Bộ núm chỉnh, lấy từ policy_candidates.json
+fail_hi	Cận trên 95 % của tỉ lệ thất bại trên mẫu TRAIN
+progress	Quãng đường trung bình trên mẫu tiến độ tự nhiên
+TODO 10 trả hàng có fail_hi thấp nhất trong số các hàng giữ được ít nhất (1 − max_loss) quãng đường của baseline; hoà thì ưu tiên quãng đường dài hơn; không hàng nào đạt thì trả None. Xếp theo cận trên thay vì ước lượng điểm để không chọn một policy chỉ trông an toàn vì vài vụ va chạm hiếm tình cờ không được rút trúng.
+
+Vì sao "0 va chạm trên TRAIN" không chứng minh gì?
+Mẫu TRAIN được rút ở nơi policy gốc thất bại. Policy mới có thể thất bại ở chỗ khác; cột unseen đánh dấu những kiểu đó. Trên TEST:
+
+kiểu unseen cộng cận upper_zero_hits của nó vào fail_hi;
+mọi va chạm khác của xe ta, đếm trên một tập tự nhiên riêng, cộng vào fail và fail_hi;
+quãng đường tính đến lúc va chạm.
+fail_hi_seen chỉ cộng các kiểu có va chạm. fail_hi là cận trên 95 % hợp lệ cho cả policy. Với n = 400, cận của một kiểu đã biến mất vẫn khoảng 15/n, nên không ngân sách nào ở lab này chứng nhận được một kiểu dưới 10⁻². Đó là bài học, không phải lỗi.
+
+Làm từng bước
+1. Xem policy_candidates.json. Thêm ứng viên nếu muốn, trong POLICY_LIMITS. Ứng viên ngoài giới hạn bị in rejected candidate ... và bị loại.
+2. Chạy bước dài nhất của lab (3–10 phút):
+python run_all.py fix
+Chép
+1. Đọc fix.json: policy được chọn, fail/fail_hi trên TRAIN, fail_hi_seen/fail_hi trên TEST, và của policy gốc trên TEST.
+2. Chạy lại python run_all.py export, mở chương 9 và chụp một kịch bản mà bản sửa tránh được, có bóng mờ của policy gốc.
+Đừng thêm ứng viên chỉ để thắng TRAIN
+Ứng viên mà mọi kiểu đều unseen có fail_hi = 0 trên TRAIN, nên choose_policy thích nó, kể cả khi nó chạy nhanh hơn và nguy hiểm hơn. TEST sẽ lộ ra. Grader chạy lại TEST với seed bí mật, nên chọn theo số TEST công khai không có lợi.
+
+Tự kiểm tra: test TODO 10 xanh; fix.json có policy được chọn. Bạn giải thích được một núm "nghe thì an toàn hơn" nhưng làm tăng thất bại, bằng cách thế giới phản ứng lại. README gợi ý: không phải núm nào "an toàn hơn" cũng an toàn hơn.
+
+
+Bước 7 — Dựng rắc rối của bạn (bước G, chương 10)
+Các cuộc săn ở bước 4 chỉ tìm trong những gì thế giới đã có. Bước này bạn thêm vào thế giới một rắc rối mới, rồi đo nó nguy hiểm đến đâu và có phải lỗi của planner không.
+
+Một rắc rối "hay" trông thế nào?
+Một rắc rối hay là rắc rối tránh được mà planner vẫn dính, và bản sửa ở bước 6 không cứu. Một rắc rối "100 % va chạm" mà không ai tránh nổi thì không chứng minh gì về planner. Chương 10 có sẵn bốn loại: người băng ngang chỗ không có vạch, xe chết máy trong làn, xe phía trước phanh gấp, xe đạp lạng ra từ mép đường. Mỗi loại có thể đợi đến khi xe ta còn cách N mét mới xảy ra.
+
+Làm từng bước
+1. Brainstorm 10 phút, được bàn theo nhóm 2–3 người, nhưng mỗi người nộp file riêng. Chọn rắc rối bạn tin planner xử lý kém, và ghi lý do.
+2. Dựng trong chương 10. Thử đến khi planner va chạm hoặc suýt va chạm. Bấm "Bạn" để tự lái và so với planner. Bấm Tải hazard.json (hoặc Sao chép), lưu vào thư mục lab.
+3. Mở hazard.json, giữ nguyên format, params, policy, hazards, và thêm ba trường bằng tay:
+"space": {"h0_x": [-150, 250], "h0_swerve": [0.6, 1.8], "h0_trig": [10, 40]},
+"exposure": 0.05,
+"why": "xe đạp lạng tránh ổ gà: ... (nguồn cho tần suất và độ lạng)"
+Chép
+space là khoảng thay đổi của từng con số, khoá dạng h<i>_<trường số> của rắc rối có thật, trong giới hạn avsim/studio.py: LIMITS. exposure là số lần rắc rối xảy ra mỗi chuyến đi, trong (0, 1]. why là căn cứ cho hai con số trên. Đây là ví dụ của README: chép nguyên thì phần G chỉ còn một nửa.
+
+1. Chạy:
+python run_all.py mine hazard.json
+Chép
+Lệnh chạy lại đúng cảnh bạn dựng, quét khoảng 1 500 phiên bản trong giao thông của thị trấn, bỏ phiên bản bất khả thi, đếm va chạm với policy gốc và policy bạn chọn ở bước 6.
+
+Đọc mine.json thế nào?
+Trường	Ý nghĩa
+accepted	Tỉ lệ phiên bản khả thi được giữ lại; RUBRIC cần ≥ 50 %
+avoidable	Phanh hết cỡ ngay khi rắc rối bắt đầu và cảm biến thấy nó thì không va chạm: lỗi của planner
+unavoidable	Phanh hết cỡ ngay lúc đó vẫn va chạm
+unattributed	Chưa rắc rối nào bắt đầu khi va chạm: va chạm thường của thị trấn
+low_speed	Va chạm khi xe ta dưới 1 m/s (bị đâm khi đang đứng chờ)
+avoidable_foreknown	Phanh từ lúc rắc rối bắt đầu dù còn bị che; chênh với avoidable là cái giá của tầm nhìn bị che
+Chỉ avoidable tính là lỗi planner. Nhân với exposure ra tần suất mỗi chuyến, đặt cạnh tần suất lách xe buýt của bạn.
+
+Không bịa exposure hay space
+exposure hoặc space không có căn cứ, hoặc why không khớp con số, thì phần G tối đa 2 điểm. Đặt chúng để rắc rối trông nguy hiểm hơn cũng nằm trong danh sách "Không được". Sai khoá space thì mine dừng và nói khoá nào sai.
+
+Tự kiểm tra: mine.json có số với cả hai policy. Bạn giải thích được vì sao "tránh được" là chuẩn lạc quan theo hai hướng: người phanh biết trước nên đếm nhiều hơn số vụ một planner thật tránh được, còn chỉ thử phanh (không đánh lái) thì đếm ít đi.
+
+
+Bước 8 — Kiểm tra lần cuối và nộp bài
+Hạn nộp: TODO — cần xác nhận. Grader chạy lại toàn bộ với MSSV của bạn trên bản sạch của các file không phải TODO, nên số trong báo cáo phải khớp với lần chạy lại.
+
+Làm lần lượt:
+
+1. Chạy test, xác nhận 31 test xanh:
+python -m pytest -q tests/test_todos.py
+Chép
+1. Chạy toàn bộ pipeline không có --quick. Mất khoảng 9 phút trên laptop rảnh, 25 phút nếu máy bận, lâu hơn trên Colab. Terminal có giới hạn thời gian thì chạy từng bước một:
+python run_all.py all
+Chép
+all chạy cả bước G nếu đã có hazard.json.
+
+1. Viết REPORT.md 9 câu. Trích số kèm tên file và trường, ví dụ mc.json: crashes = 4. Số lấy từ lần chạy thêm ngoài evidence/ phải ghi rõ là vậy.
+2. Tạo thư mục nộp theo đúng định dạng của khoá:
+K4-DAY16-HoVaTen-MSSV/
+├── lab11/*.py
+├── hazard.json
+├── evidence/*.json
+├── evidence/shots/      # ảnh chụp trình xem 3D
+└── REPORT.md
+Chép
+1. Nộp thư mục trên VLearn.
+Bài cá nhân
+Chỉ brainstorm rắc rối ở bước 7 được bàn theo nhóm 2–3 người; mỗi người vẫn dựng và nộp file riêng. Rắc rối giống hệt của bạn cùng lớp chia đôi điểm phần G. Sửa avsim/, phân phối tự nhiên hoặc seed thì tổng tối đa 40.
+
+Trước khi bấm nộp0/6
+
+`python -m pytest -q tests/test_todos.py` pass cả 31 test.
+
+`evidence/` được tạo bằng lần chạy đầy đủ, không `--quick`.
+
+Không sửa `avsim/`, `run_all.py`, `tests/` hay phân phối tự nhiên.
+
+Dòng đầu `REPORT.md` đúng MSSV; mọi số trích khớp `evidence/`.
+
+Có `hazard.json` với `space`, `exposure`, `why`, và ảnh trong `evidence/shots/`.
+
+Thư mục nộp tên đúng `K4-DAY16-HoVaTen-MSSV`.
+
