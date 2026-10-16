@@ -1,0 +1,1098 @@
+{
+  "type": "object",
+  "required": [
+    "schema_version",
+    "scenario_id",
+    "guidance_mode",
+    "physics_dt_s",
+    "sample_interval_s",
+    "world_frame",
+    "quaternion_order",
+    "samples"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "scenario_id": {
+      "type": "string"
+    },
+    "guidance_mode": {
+      "enum": [
+        "predictive",
+        "early_hover"
+      ]
+    },
+    "physics_dt_s": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "sample_interval_s": {
+      "type": "number"
+    },
+    "world_frame": {
+      "const": "right_handed_Z_up"
+    },
+    "quaternion_order": {
+      "const": "wxyz_body_to_world"
+    },
+    "samples": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "required": [
+          "schema_version",
+          "scenario_id",
+          "time_s",
+          "interval_start_s",
+          "interval_dt_s",
+          "physics_ground_truth",
+          "sensor_measurements",
+          "estimated_state",
+          "controller_mode",
+          "controller_diagnostics",
+          "requested_force_body_N",
+          "requested_torque_body_Nm",
+          "achieved_force_body_N",
+          "achieved_torque_body_Nm",
+          "thruster_states",
+          "fuel_consumed_kg",
+          "fuel_remaining_kg",
+          "mass_flow_kg_s",
+          "ground_clearance_m",
+          "attitude_error_deg",
+          "recovery_feasible",
+          "diagnostic_events",
+          "allocation_feasible",
+          "allocation_normalized_residual",
+          "allocation_force_residual_N",
+          "allocation_torque_residual_Nm",
+          "attitude",
+          "seat_free_flight",
+          "vertical_speed_m_s",
+          "horizontal_speed_m_s",
+          "time_to_impact_estimate_s",
+          "time_to_impact_model"
+        ],
+        "properties": {
+          "schema_version": {
+            "const": "1.0.0"
+          },
+          "scenario_id": {
+            "type": "string"
+          },
+          "time_s": {
+            "type": "number"
+          },
+          "interval_start_s": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          },
+          "interval_dt_s": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          },
+          "physics_ground_truth": {
+            "type": "object",
+            "required": [
+              "position_world_m",
+              "velocity_world_m_s",
+              "orientation_body_to_world_wxyz",
+              "angular_velocity_body_rad_s",
+              "mass_kg",
+              "propellant_remaining_kg",
+              "propellant_by_thruster_kg",
+              "inertia_body_kg_m2",
+              "ground_clearance_m",
+              "kinetic_energy",
+              "contact",
+              "acceleration_world_m_s2",
+              "angular_acceleration_body_rad_s2",
+              "dynamics_evaluation_time_s",
+              "dynamics_evaluation_state",
+              "acceleration_convention",
+              "applied_thruster_force_body_N",
+              "applied_thruster_torque_body_Nm"
+            ],
+            "properties": {
+              "position_world_m": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 3,
+                "maxItems": 3
+              },
+              "velocity_world_m_s": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 3,
+                "maxItems": 3
+              },
+              "orientation_body_to_world_wxyz": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 4,
+                "maxItems": 4
+              },
+              "angular_velocity_body_rad_s": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 3,
+                "maxItems": 3
+              },
+              "mass_kg": {
+                "type": "number"
+              },
+              "propellant_remaining_kg": {
+                "type": "number"
+              },
+              "propellant_by_thruster_kg": {
+                "type": "array",
+                "minItems": 10,
+                "maxItems": 10,
+                "items": {
+                  "type": "number",
+                  "minimum": 0
+                }
+              },
+              "inertia_body_kg_m2": {
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  },
+                  "minItems": 3,
+                  "maxItems": 3
+                },
+                "minItems": 3,
+                "maxItems": 3
+              },
+              "ground_clearance_m": {
+                "type": "number"
+              },
+              "kinetic_energy": {
+                "type": "object",
+                "required": [
+                  "translational_J",
+                  "rotational_J",
+                  "total_J"
+                ],
+                "properties": {
+                  "translational_J": {
+                    "type": "number"
+                  },
+                  "rotational_J": {
+                    "type": "number"
+                  },
+                  "total_J": {
+                    "type": "number"
+                  }
+                }
+              },
+              "contact": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/$defs/contact"
+                  }
+                ]
+              },
+              "acceleration_world_m_s2": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    },
+                    "minItems": 3,
+                    "maxItems": 3
+                  }
+                ]
+              },
+              "angular_acceleration_body_rad_s2": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    },
+                    "minItems": 3,
+                    "maxItems": 3
+                  }
+                ]
+              },
+              "dynamics_evaluation_time_s": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ]
+              },
+              "dynamics_evaluation_state": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "position_world_m",
+                      "velocity_world_m_s",
+                      "orientation_body_to_world_wxyz",
+                      "angular_velocity_body_rad_s",
+                      "mass_kg",
+                      "inertia_body_kg_m2"
+                    ],
+                    "properties": {
+                      "position_world_m": {
+                        "type": "array",
+                        "items": {
+                          "type": "number"
+                        },
+                        "minItems": 3,
+                        "maxItems": 3
+                      },
+                      "velocity_world_m_s": {
+                        "type": "array",
+                        "items": {
+                          "type": "number"
+                        },
+                        "minItems": 3,
+                        "maxItems": 3
+                      },
+                      "orientation_body_to_world_wxyz": {
+                        "type": "array",
+                        "items": {
+                          "type": "number"
+                        },
+                        "minItems": 4,
+                        "maxItems": 4
+                      },
+                      "angular_velocity_body_rad_s": {
+                        "type": "array",
+                        "items": {
+                          "type": "number"
+                        },
+                        "minItems": 3,
+                        "maxItems": 3
+                      },
+                      "mass_kg": {
+                        "type": "number"
+                      },
+                      "inertia_body_kg_m2": {
+                        "type": "array",
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "type": "number"
+                          },
+                          "minItems": 3,
+                          "maxItems": 3
+                        },
+                        "minItems": 3,
+                        "maxItems": 3
+                      }
+                    }
+                  }
+                ]
+              },
+              "acceleration_convention": {
+                "type": "string"
+              },
+              "applied_thruster_force_body_N": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 3,
+                "maxItems": 3
+              },
+              "applied_thruster_torque_body_Nm": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 3,
+                "maxItems": 3
+              }
+            }
+          },
+          "sensor_measurements": {
+            "type": "object",
+            "required": [
+              "mode",
+              "imu",
+              "radar",
+              "lidar"
+            ],
+            "properties": {
+              "mode": {
+                "enum": [
+                  "NOT_SIMULATED",
+                  "SYNTHETIC",
+                  "EXTERNAL"
+                ]
+              },
+              "imu": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "time_s",
+                      "specific_force_body_m_s2",
+                      "gyro_body_rad_s"
+                    ],
+                    "properties": {
+                      "time_s": {
+                        "type": "number"
+                      },
+                      "specific_force_body_m_s2": {
+                        "type": "array",
+                        "items": {
+                          "type": "number"
+                        },
+                        "minItems": 3,
+                        "maxItems": 3
+                      },
+                      "gyro_body_rad_s": {
+                        "type": "array",
+                        "items": {
+                          "type": "number"
+                        },
+                        "minItems": 3,
+                        "maxItems": 3
+                      }
+                    }
+                  }
+                ]
+              },
+              "radar": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "time_s",
+                      "range_m",
+                      "relative_velocity_m_s"
+                    ],
+                    "properties": {
+                      "time_s": {
+                        "type": "number"
+                      },
+                      "range_m": {
+                        "type": "number"
+                      },
+                      "relative_velocity_m_s": {
+                        "type": "number"
+                      }
+                    }
+                  }
+                ]
+              },
+              "lidar": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "time_s",
+                      "minimum_ground_clearance_m",
+                      "ground_observations_world_m"
+                    ],
+                    "properties": {
+                      "time_s": {
+                        "type": "number"
+                      },
+                      "minimum_ground_clearance_m": {
+                        "type": "number"
+                      },
+                      "ground_observations_world_m": {
+                        "type": "array",
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "type": "number"
+                          },
+                          "minItems": 3,
+                          "maxItems": 3
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "estimated_state": {
+            "type": "object",
+            "required": [
+              "position_world_m",
+              "velocity_world_m_s",
+              "orientation_body_to_world_wxyz",
+              "angular_velocity_body_rad_s",
+              "mode",
+              "time_s",
+              "residuals",
+              "uncertainty"
+            ],
+            "properties": {
+              "position_world_m": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 3,
+                "maxItems": 3
+              },
+              "velocity_world_m_s": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 3,
+                "maxItems": 3
+              },
+              "orientation_body_to_world_wxyz": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 4,
+                "maxItems": 4
+              },
+              "angular_velocity_body_rad_s": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 3,
+                "maxItems": 3
+              },
+              "mode": {
+                "type": "string"
+              },
+              "time_s": {
+                "type": "number"
+              },
+              "residuals": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "type": "object"
+                  }
+                ]
+              },
+              "uncertainty": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "type": "object"
+                  }
+                ]
+              }
+            }
+          },
+          "controller_mode": {
+            "enum": [
+              "predictive",
+              "early_hover"
+            ]
+          },
+          "controller_diagnostics": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "object"
+              }
+            ]
+          },
+          "requested_force_body_N": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 3,
+            "maxItems": 3
+          },
+          "requested_torque_body_Nm": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 3,
+            "maxItems": 3
+          },
+          "achieved_force_body_N": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 3,
+            "maxItems": 3
+          },
+          "achieved_torque_body_Nm": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 3,
+            "maxItems": 3
+          },
+          "thruster_states": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "name",
+                "position_body_m",
+                "commanded_thrust_N",
+                "applied_thrust_N",
+                "force_direction_body",
+                "force_body_N",
+                "torque_body_Nm",
+                "gimbal_yaw_rad",
+                "gimbal_pitch_rad",
+                "saturated",
+                "available",
+                "failed",
+                "mass_flow_kg_s",
+                "gas_consumed_interval_kg",
+                "fuel_remaining_before_kg",
+                "fuel_remaining_after_kg",
+                "max_thrust_N"
+              ],
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "position_body_m": {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  },
+                  "minItems": 3,
+                  "maxItems": 3
+                },
+                "commanded_thrust_N": {
+                  "type": "number"
+                },
+                "applied_thrust_N": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "force_direction_body": {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  },
+                  "minItems": 3,
+                  "maxItems": 3
+                },
+                "force_body_N": {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  },
+                  "minItems": 3,
+                  "maxItems": 3
+                },
+                "torque_body_Nm": {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  },
+                  "minItems": 3,
+                  "maxItems": 3
+                },
+                "gimbal_yaw_rad": {
+                  "type": "number"
+                },
+                "gimbal_pitch_rad": {
+                  "type": "number"
+                },
+                "saturated": {
+                  "type": "boolean"
+                },
+                "available": {
+                  "type": "boolean"
+                },
+                "failed": {
+                  "type": "boolean"
+                },
+                "mass_flow_kg_s": {
+                  "type": "number"
+                },
+                "gas_consumed_interval_kg": {
+                  "type": "number"
+                },
+                "fuel_remaining_before_kg": {
+                  "type": "number"
+                },
+                "fuel_remaining_after_kg": {
+                  "type": "number"
+                },
+                "max_thrust_N": {
+                  "type": "number"
+                }
+              }
+            },
+            "maxItems": 10
+          },
+          "fuel_consumed_kg": {
+            "type": "number"
+          },
+          "fuel_remaining_kg": {
+            "type": "number",
+            "minimum": 0
+          },
+          "mass_flow_kg_s": {
+            "type": "number"
+          },
+          "ground_clearance_m": {
+            "type": "number"
+          },
+          "attitude_error_deg": {
+            "type": "number"
+          },
+          "recovery_feasible": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "diagnostic_events": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "code"
+              ],
+              "properties": {
+                "code": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "allocation_feasible": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "allocation_normalized_residual": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          },
+          "allocation_force_residual_N": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 3,
+                "maxItems": 3
+              }
+            ]
+          },
+          "allocation_torque_residual_Nm": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 3,
+                "maxItems": 3
+              }
+            ]
+          },
+          "attitude": {
+            "type": "object"
+          },
+          "seat_free_flight": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "object",
+                "required": [
+                  "position_body_m",
+                  "acceleration_world_m_s2",
+                  "specific_force_world_m_s2",
+                  "specific_force_g"
+                ],
+                "properties": {
+                  "position_body_m": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    },
+                    "minItems": 3,
+                    "maxItems": 3
+                  },
+                  "acceleration_world_m_s2": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    },
+                    "minItems": 3,
+                    "maxItems": 3
+                  },
+                  "specific_force_world_m_s2": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    },
+                    "minItems": 3,
+                    "maxItems": 3
+                  },
+                  "specific_force_g": {
+                    "type": "number"
+                  }
+                }
+              }
+            ]
+          },
+          "vertical_speed_m_s": {
+            "type": "number"
+          },
+          "horizontal_speed_m_s": {
+            "type": "number"
+          },
+          "time_to_impact_estimate_s": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          },
+          "time_to_impact_model": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Flight recovery telemetry v1",
+  "$defs": {
+    "contact": {
+      "type": "object",
+      "required": [
+        "contacts",
+        "normal_contact_impulse_Ns",
+        "total_impulse_world_Ns",
+        "total_average_force_approx_world_N",
+        "angular_impulse_about_CG_world_Nms",
+        "average_torque_approx_world_Nm",
+        "pre_impact_velocity_world_m_s",
+        "post_impact_velocity_world_m_s",
+        "pre_impact_angular_velocity_body_rad_s",
+        "post_impact_angular_velocity_body_rad_s",
+        "kinetic_energy_before",
+        "kinetic_energy_after",
+        "kinetic_energy_dissipated_approx_J",
+        "max_penetration_m",
+        "normal_velocity_constraint_residual_m_s",
+        "solver_iterations",
+        "force_time_assumption_s",
+        "true_peak_contact_force_N",
+        "unavailable_reason"
+      ],
+      "properties": {
+        "contacts": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "items": {
+            "type": "object",
+            "required": [
+              "contact_id",
+              "region",
+              "position_body_m",
+              "position_world_m",
+              "normal_world",
+              "normal_impulse_Ns",
+              "tangential_impulse_world_Ns",
+              "total_impulse_world_Ns",
+              "average_normal_force_approx_N",
+              "angular_impulse_about_CG_world_Nms",
+              "pre_impact_point_velocity_world_m_s",
+              "post_impact_point_velocity_world_m_s"
+            ],
+            "properties": {
+              "contact_id": {
+                "type": "string",
+                "pattern": "^box_corner_[0-7]$"
+              },
+              "region": {
+                "const": "simulated_rigid_body_corner"
+              },
+              "position_body_m": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 3,
+                "maxItems": 3
+              },
+              "position_world_m": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 3,
+                "maxItems": 3
+              },
+              "normal_world": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 3,
+                "maxItems": 3
+              },
+              "normal_impulse_Ns": {
+                "type": "number",
+                "minimum": 0
+              },
+              "tangential_impulse_world_Ns": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 3,
+                "maxItems": 3
+              },
+              "total_impulse_world_Ns": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 3,
+                "maxItems": 3
+              },
+              "average_normal_force_approx_N": {
+                "type": "number"
+              },
+              "angular_impulse_about_CG_world_Nms": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 3,
+                "maxItems": 3
+              },
+              "pre_impact_point_velocity_world_m_s": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 3,
+                "maxItems": 3
+              },
+              "post_impact_point_velocity_world_m_s": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 3,
+                "maxItems": 3
+              }
+            }
+          }
+        },
+        "normal_contact_impulse_Ns": {
+          "type": "number"
+        },
+        "total_impulse_world_Ns": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "total_average_force_approx_world_N": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "angular_impulse_about_CG_world_Nms": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "average_torque_approx_world_Nm": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "pre_impact_velocity_world_m_s": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "post_impact_velocity_world_m_s": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "pre_impact_angular_velocity_body_rad_s": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "post_impact_angular_velocity_body_rad_s": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "kinetic_energy_before": {
+          "type": "object",
+          "required": [
+            "translational_J",
+            "rotational_J",
+            "total_J"
+          ],
+          "properties": {
+            "translational_J": {
+              "type": "number"
+            },
+            "rotational_J": {
+              "type": "number"
+            },
+            "total_J": {
+              "type": "number"
+            }
+          }
+        },
+        "kinetic_energy_after": {
+          "type": "object",
+          "required": [
+            "translational_J",
+            "rotational_J",
+            "total_J"
+          ],
+          "properties": {
+            "translational_J": {
+              "type": "number"
+            },
+            "rotational_J": {
+              "type": "number"
+            },
+            "total_J": {
+              "type": "number"
+            }
+          }
+        },
+        "kinetic_energy_dissipated_approx_J": {
+          "type": "number"
+        },
+        "max_penetration_m": {
+          "type": "number"
+        },
+        "normal_velocity_constraint_residual_m_s": {
+          "type": "number"
+        },
+        "solver_iterations": {
+          "type": "integer"
+        },
+        "force_time_assumption_s": {
+          "type": "number"
+        },
+        "true_peak_contact_force_N": {
+          "type": "null"
+        },
+        "unavailable_reason": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

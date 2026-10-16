@@ -1,0 +1,498 @@
+{
+  "type": "object",
+  "required": [
+    "schema_version",
+    "scenario_id",
+    "guidance_mode",
+    "units",
+    "scenario_configuration",
+    "vehicle_assumptions",
+    "physics_dt_s",
+    "elapsed_s",
+    "success",
+    "status",
+    "assessments",
+    "failure_reasons",
+    "threshold_results",
+    "flight_stability",
+    "fuel_summary",
+    "thruster_statistics",
+    "allocation_summary",
+    "touchdown",
+    "contact_loads",
+    "touchdown_prediction",
+    "occupant_load_proxy",
+    "illustrative_high_impact_threshold",
+    "limitations"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "scenario_id": {
+      "type": "string"
+    },
+    "guidance_mode": {
+      "enum": [
+        "predictive",
+        "early_hover"
+      ]
+    },
+    "units": {
+      "type": "string"
+    },
+    "scenario_configuration": {
+      "type": "object"
+    },
+    "vehicle_assumptions": {
+      "type": "object"
+    },
+    "physics_dt_s": {
+      "type": "number"
+    },
+    "elapsed_s": {
+      "type": "number"
+    },
+    "success": {
+      "type": "boolean"
+    },
+    "status": {
+      "enum": [
+        "landed",
+        "failed"
+      ]
+    },
+    "assessments": {
+      "type": "object",
+      "required": [
+        "control_stability",
+        "landing_criteria",
+        "impact_load_assessment",
+        "structural_assessment",
+        "occupant_safety_assessment"
+      ],
+      "properties": {
+        "control_stability": {
+          "enum": [
+            "CONTROL_STABLE",
+            "CONTROL_UNSTABLE"
+          ]
+        },
+        "landing_criteria": {
+          "enum": [
+            "LANDING_PASS",
+            "LANDING_FAIL"
+          ]
+        },
+        "impact_load_assessment": {
+          "enum": [
+            "HIGH_IMPACT_LOAD",
+            "NO_ILLUSTRATIVE_HIGH_LOAD_FLAG",
+            "UNKNOWN"
+          ]
+        },
+        "structural_assessment": {
+          "const": "STRUCTURAL_UNKNOWN"
+        },
+        "occupant_safety_assessment": {
+          "const": "NOT_VALIDATED"
+        }
+      }
+    },
+    "failure_reasons": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "threshold_results": {
+      "type": "object"
+    },
+    "flight_stability": {
+      "type": "object"
+    },
+    "fuel_summary": {
+      "type": "object",
+      "required": [
+        "initial_kg",
+        "consumed_kg",
+        "remaining_kg",
+        "mass_balance_error_kg"
+      ],
+      "properties": {
+        "initial_kg": {
+          "type": "number"
+        },
+        "consumed_kg": {
+          "type": "number"
+        },
+        "remaining_kg": {
+          "type": "number"
+        },
+        "mass_balance_error_kg": {
+          "type": "number"
+        }
+      }
+    },
+    "thruster_statistics": {
+      "type": "array",
+      "minItems": 10,
+      "maxItems": 10,
+      "items": {
+        "type": "object"
+      }
+    },
+    "allocation_summary": {
+      "type": "object"
+    },
+    "touchdown": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "required": [
+            "time_s",
+            "vertical_speed_m_s",
+            "horizontal_speed_m_s",
+            "attitude_tilt_deg",
+            "attitude_error_from_upright_deg",
+            "angular_rate_rad_s",
+            "impact_kinetic_energy_J",
+            "normal_contact_impulse_Ns",
+            "average_contact_force_approx_N",
+            "impact_stopping_time_assumption_s",
+            "contact_deceleration_sampled_m_s2",
+            "CG_impact_average_deceleration_g",
+            "seat_impact_average_deceleration_g"
+          ],
+          "properties": {
+            "time_s": {
+              "type": "number"
+            },
+            "vertical_speed_m_s": {
+              "type": "number"
+            },
+            "horizontal_speed_m_s": {
+              "type": "number"
+            },
+            "attitude_tilt_deg": {
+              "type": "number"
+            },
+            "attitude_error_from_upright_deg": {
+              "type": "number"
+            },
+            "angular_rate_rad_s": {
+              "type": "number"
+            },
+            "impact_kinetic_energy_J": {
+              "type": "number"
+            },
+            "normal_contact_impulse_Ns": {
+              "type": "number"
+            },
+            "average_contact_force_approx_N": {
+              "type": "number"
+            },
+            "impact_stopping_time_assumption_s": {
+              "type": "number"
+            },
+            "contact_deceleration_sampled_m_s2": {
+              "type": "number"
+            },
+            "CG_impact_average_deceleration_g": {
+              "type": "number"
+            },
+            "seat_impact_average_deceleration_g": {
+              "type": "number"
+            }
+          }
+        }
+      ]
+    },
+    "contact_loads": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/contact"
+        }
+      ]
+    },
+    "touchdown_prediction": {
+      "type": "object"
+    },
+    "occupant_load_proxy": {
+      "type": "object"
+    },
+    "illustrative_high_impact_threshold": {
+      "type": "object"
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Flight recovery safety report v1",
+  "$defs": {
+    "contact": {
+      "type": "object",
+      "required": [
+        "contacts",
+        "normal_contact_impulse_Ns",
+        "total_impulse_world_Ns",
+        "total_average_force_approx_world_N",
+        "angular_impulse_about_CG_world_Nms",
+        "average_torque_approx_world_Nm",
+        "pre_impact_velocity_world_m_s",
+        "post_impact_velocity_world_m_s",
+        "pre_impact_angular_velocity_body_rad_s",
+        "post_impact_angular_velocity_body_rad_s",
+        "kinetic_energy_before",
+        "kinetic_energy_after",
+        "kinetic_energy_dissipated_approx_J",
+        "max_penetration_m",
+        "normal_velocity_constraint_residual_m_s",
+        "solver_iterations",
+        "force_time_assumption_s",
+        "true_peak_contact_force_N",
+        "unavailable_reason"
+      ],
+      "properties": {
+        "contacts": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "items": {
+            "type": "object",
+            "required": [
+              "contact_id",
+              "region",
+              "position_body_m",
+              "position_world_m",
+              "normal_world",
+              "normal_impulse_Ns",
+              "tangential_impulse_world_Ns",
+              "total_impulse_world_Ns",
+              "average_normal_force_approx_N",
+              "angular_impulse_about_CG_world_Nms",
+              "pre_impact_point_velocity_world_m_s",
+              "post_impact_point_velocity_world_m_s"
+            ],
+            "properties": {
+              "contact_id": {
+                "type": "string",
+                "pattern": "^box_corner_[0-7]$"
+              },
+              "region": {
+                "const": "simulated_rigid_body_corner"
+              },
+              "position_body_m": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 3,
+                "maxItems": 3
+              },
+              "position_world_m": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 3,
+                "maxItems": 3
+              },
+              "normal_world": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 3,
+                "maxItems": 3
+              },
+              "normal_impulse_Ns": {
+                "type": "number",
+                "minimum": 0
+              },
+              "tangential_impulse_world_Ns": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 3,
+                "maxItems": 3
+              },
+              "total_impulse_world_Ns": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 3,
+                "maxItems": 3
+              },
+              "average_normal_force_approx_N": {
+                "type": "number"
+              },
+              "angular_impulse_about_CG_world_Nms": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 3,
+                "maxItems": 3
+              },
+              "pre_impact_point_velocity_world_m_s": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 3,
+                "maxItems": 3
+              },
+              "post_impact_point_velocity_world_m_s": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 3,
+                "maxItems": 3
+              }
+            }
+          }
+        },
+        "normal_contact_impulse_Ns": {
+          "type": "number"
+        },
+        "total_impulse_world_Ns": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "total_average_force_approx_world_N": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "angular_impulse_about_CG_world_Nms": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "average_torque_approx_world_Nm": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "pre_impact_velocity_world_m_s": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "post_impact_velocity_world_m_s": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "pre_impact_angular_velocity_body_rad_s": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "post_impact_angular_velocity_body_rad_s": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "kinetic_energy_before": {
+          "type": "object",
+          "required": [
+            "translational_J",
+            "rotational_J",
+            "total_J"
+          ],
+          "properties": {
+            "translational_J": {
+              "type": "number"
+            },
+            "rotational_J": {
+              "type": "number"
+            },
+            "total_J": {
+              "type": "number"
+            }
+          }
+        },
+        "kinetic_energy_after": {
+          "type": "object",
+          "required": [
+            "translational_J",
+            "rotational_J",
+            "total_J"
+          ],
+          "properties": {
+            "translational_J": {
+              "type": "number"
+            },
+            "rotational_J": {
+              "type": "number"
+            },
+            "total_J": {
+              "type": "number"
+            }
+          }
+        },
+        "kinetic_energy_dissipated_approx_J": {
+          "type": "number"
+        },
+        "max_penetration_m": {
+          "type": "number"
+        },
+        "normal_velocity_constraint_residual_m_s": {
+          "type": "number"
+        },
+        "solver_iterations": {
+          "type": "integer"
+        },
+        "force_time_assumption_s": {
+          "type": "number"
+        },
+        "true_peak_contact_force_N": {
+          "type": "null"
+        },
+        "unavailable_reason": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
