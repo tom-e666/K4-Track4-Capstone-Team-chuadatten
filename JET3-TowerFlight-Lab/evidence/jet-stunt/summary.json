@@ -1,0 +1,44 @@
+{
+  "seed": 20261016,
+  "total": 3600,
+  "counts": {
+    "safe": 656,
+    "crash": 2691,
+    "near": 52,
+    "infeasible": 201
+  },
+  "uniformCounts": {
+    "safe": 210,
+    "crash": 359,
+    "near": 26,
+    "infeasible": 5
+  },
+  "cemCounts": {
+    "crash": 2332,
+    "safe": 446,
+    "near": 26,
+    "infeasible": 196
+  },
+  "baseline": {
+    "outcome": "safe",
+    "reason": "completed",
+    "feasible": true,
+    "gateCount": 4,
+    "minClearance": 1.0845669786663907,
+    "peakTrackingError": 0.9970913407014879,
+    "peakSpeed": 18.513045736341947,
+    "speedLimit": 22.22222222222222,
+    "peakOverspeed": 0,
+    "saturationFraction": 0.001,
+    "landed": true,
+    "score": 1.0845669786663907
+  },
+  "modelVersion": "jet-pointmass-yaw/2",
+  "controller": "ground-truth PD with four vector thrusters",
+  "sensors": [],
+  "caveats": [
+    "CEM samples are biased toward failures; counts are not risk probabilities.",
+    "3D point-mass plus dynamic yaw; roll/pitch are not rigid-body dynamics.",
+    "Facade crossing and vehicle envelope are collision approximations."
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "name": "jet3-towerflight-lab",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Standalone three-tower jet-car simulator and deterministic scenario search",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "start": "node scripts/serve.cjs",
+    "generate": "node scripts/generate-jet-scenarios.cjs --sample-js viewer/jet-lab-sample.js",
+    "test": "node tests/test_jet_sim.cjs evidence/jet-stunt/viewer.json"
+  }
+}

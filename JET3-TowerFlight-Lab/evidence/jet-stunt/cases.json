@@ -1,0 +1,449 @@
+{
+  "format": "jet-stunt-viewer/1",
+  "modelVersion": "jet-pointmass-yaw/2",
+  "policy": {
+    "kpXY": 4.5,
+    "kdXY": 4.2,
+    "kpY": 9,
+    "kdY": 5.5,
+    "kpYaw": 12,
+    "kdYaw": 5.5,
+    "maxPodForce": 9000,
+    "maxSpeed": 22.22222222222222,
+    "forceSlew": 90000,
+    "drag": 0.35
+  },
+  "runs": [
+    {
+      "id": "JET-01",
+      "cloudIndex": 0,
+      "params": {
+        "windX": 0,
+        "windZ": 0,
+        "windGust": 0,
+        "thrustScale": 1,
+        "massScale": 1,
+        "delay": 0.025,
+        "podLoss": 0,
+        "yawBias": 0,
+        "offsetZ": 0,
+        "speedScale": 1
+      },
+      "outcome": "safe",
+      "label": "completed",
+      "metrics": {
+        "outcome": "safe",
+        "reason": "completed",
+        "feasible": true,
+        "gateCount": 4,
+        "minClearance": 1.0845669786663907,
+        "peakTrackingError": 0.9970913407014879,
+        "peakSpeed": 18.513045736341947,
+        "speedLimit": 22.22222222222222,
+        "peakOverspeed": 0,
+        "saturationFraction": 0.001,
+        "landed": true,
+        "score": 1.0845669786663907
+      },
+      "events": [
+        {
+          "kind": "glass",
+          "gate": 0,
+          "t": 3.5500000000000003,
+          "x": 67,
+          "y": 32,
+          "z": -31
+        },
+        {
+          "kind": "glass",
+          "gate": 1,
+          "t": 5.25,
+          "x": 96,
+          "y": 28,
+          "z": -31
+        },
+        {
+          "kind": "glass",
+          "gate": 2,
+          "t": 7.625,
+          "x": 117,
+          "y": 28,
+          "z": -14
+        },
+        {
+          "kind": "glass",
+          "gate": 3,
+          "t": 9.475,
+          "x": 117,
+          "y": 24,
+          "z": 14
+        }
+      ],
+      "duration": 12.5,
+      "trajectoryHash": "adfe6ed5"
+    },
+    {
+      "id": "JET-02",
+      "cloudIndex": 1634,
+      "params": {
+        "windX": -8.48050366,
+        "windZ": 0.70260813,
+        "windGust": 3.86381418,
+        "thrustScale": 0.55,
+        "massScale": 1.10478762,
+        "delay": 0.21144006,
+        "podLoss": 0.7114163,
+        "yawBias": 0.01920246,
+        "offsetZ": -0.11169481,
+        "speedScale": 1.11095641
+      },
+      "outcome": "crash",
+      "label": "wall_tower_2",
+      "metrics": {
+        "outcome": "crash",
+        "reason": "wall_tower_2",
+        "feasible": true,
+        "gateCount": 1,
+        "minClearance": -7.232059747714715,
+        "peakTrackingError": 17.769303673952095,
+        "peakSpeed": 19.713350557947983,
+        "speedLimit": 22.22222222222222,
+        "peakOverspeed": 0,
+        "saturationFraction": 0.9550438596491229,
+        "landed": false,
+        "score": -9.232059747714715
+      },
+      "events": [
+        {
+          "kind": "glass",
+          "gate": 0,
+          "t": 4,
+          "x": 67,
+          "y": 32,
+          "z": -31
+        },
+        {
+          "kind": "collision",
+          "reason": "wall_tower_2",
+          "t": 5.7,
+          "x": 96.26267838272747,
+          "y": 21.49390391858251,
+          "z": -29.22469554277889,
+          "clearance": -7.232059747714715
+        }
+      ],
+      "duration": 5.7,
+      "trajectoryHash": "8e5d71e6"
+    },
+    {
+      "id": "JET-03",
+      "cloudIndex": 2198,
+      "params": {
+        "windX": -9,
+        "windZ": -9,
+        "windGust": 5.09351105,
+        "thrustScale": 0.5733563,
+        "massScale": 1.04188509,
+        "delay": 0.18338178,
+        "podLoss": 0.50826455,
+        "yawBias": -0.2,
+        "offsetZ": 0.9,
+        "speedScale": 1.10593074
+      },
+      "outcome": "crash",
+      "label": "wall_tower_1",
+      "metrics": {
+        "outcome": "crash",
+        "reason": "wall_tower_1",
+        "feasible": true,
+        "gateCount": 0,
+        "minClearance": -2.8366816324684283,
+        "peakTrackingError": 11.59169978339353,
+        "peakSpeed": 17.148597665253526,
+        "speedLimit": 22.22222222222222,
+        "peakOverspeed": 0,
+        "saturationFraction": 0.9354304635761589,
+        "landed": false,
+        "score": -4.836681632468428
+      },
+      "events": [
+        {
+          "kind": "collision",
+          "reason": "wall_tower_1",
+          "t": 3.7750000000000004,
+          "x": 67.42501059664316,
+          "y": 32.84200449712702,
+          "z": -34.229390072353894,
+          "clearance": -2.8366816324684283
+        }
+      ],
+      "duration": 3.7750000000000004,
+      "trajectoryHash": "aa3a7f9a"
+    },
+    {
+      "id": "JET-04",
+      "cloudIndex": 177,
+      "params": {
+        "windX": 4.19144269,
+        "windZ": -5.08007368,
+        "windGust": 5.92021118,
+        "thrustScale": 0.57033636,
+        "massScale": 1.08146791,
+        "delay": 0.00053205,
+        "podLoss": 0.01206907,
+        "yawBias": -0.19479849,
+        "offsetZ": 0.55998081,
+        "speedScale": 1.11808518
+      },
+      "outcome": "crash",
+      "label": "wall_tower_3",
+      "metrics": {
+        "outcome": "crash",
+        "reason": "wall_tower_3",
+        "feasible": true,
+        "gateCount": 3,
+        "minClearance": -1.5103668293164567,
+        "peakTrackingError": 4.585907722285034,
+        "peakSpeed": 20.112178668189795,
+        "speedLimit": 22.22222222222222,
+        "peakOverspeed": 0,
+        "saturationFraction": 0.6355072463768116,
+        "landed": false,
+        "score": -3.5103668293164567
+      },
+      "events": [
+        {
+          "kind": "glass",
+          "gate": 0,
+          "t": 3.2,
+          "x": 67,
+          "y": 32,
+          "z": -31
+        },
+        {
+          "kind": "glass",
+          "gate": 1,
+          "t": 4.7,
+          "x": 96,
+          "y": 28,
+          "z": -31
+        },
+        {
+          "kind": "glass",
+          "gate": 2,
+          "t": 7,
+          "x": 117,
+          "y": 28,
+          "z": -14
+        },
+        {
+          "kind": "collision",
+          "reason": "wall_tower_3",
+          "t": 8.625,
+          "x": 118.19201054354099,
+          "y": 23.326706595968822,
+          "z": 14.103822579795628,
+          "clearance": -1.5103668293164567
+        }
+      ],
+      "duration": 8.625,
+      "trajectoryHash": "bf089f2c"
+    },
+    {
+      "id": "JET-05",
+      "cloudIndex": 343,
+      "params": {
+        "windX": -0.18370184,
+        "windZ": -5.68843631,
+        "windGust": 3.95188657,
+        "thrustScale": 1.17713306,
+        "massScale": 0.86450005,
+        "delay": 0.20777155,
+        "podLoss": 0.10562268,
+        "yawBias": 0.04681573,
+        "offsetZ": 0.32211734,
+        "speedScale": 0.96635249
+      },
+      "outcome": "crash",
+      "label": "hard_landing",
+      "metrics": {
+        "outcome": "crash",
+        "reason": "hard_landing",
+        "feasible": true,
+        "gateCount": 2,
+        "minClearance": 1.338360674825338,
+        "peakTrackingError": 1.752797755163939,
+        "peakSpeed": 18.36360796545806,
+        "speedLimit": 22.22222222222222,
+        "peakOverspeed": 0,
+        "saturationFraction": 0.019642857142857142,
+        "landed": false,
+        "score": -2
+      },
+      "events": [
+        {
+          "kind": "glass",
+          "gate": 0,
+          "t": 3.6500000000000004,
+          "x": 67,
+          "y": 32,
+          "z": -31
+        },
+        {
+          "kind": "glass",
+          "gate": 1,
+          "t": 5.425000000000001,
+          "x": 96,
+          "y": 28,
+          "z": -31
+        },
+        {
+          "kind": "collision",
+          "reason": "hard_landing",
+          "t": 7,
+          "x": 113.45503905712943,
+          "y": 28.72313654108524,
+          "z": -24.41563494658394
+        }
+      ],
+      "duration": 7,
+      "trajectoryHash": "9f3ae8e0"
+    },
+    {
+      "id": "JET-06",
+      "cloudIndex": 369,
+      "params": {
+        "windX": -8.90568071,
+        "windZ": -0.41484676,
+        "windGust": 1.60536337,
+        "thrustScale": 0.78420519,
+        "massScale": 0.89264508,
+        "delay": 0.02896327,
+        "podLoss": 0.60107597,
+        "yawBias": -0.02611972,
+        "offsetZ": -0.01596047,
+        "speedScale": 1.10092296
+      },
+      "outcome": "near",
+      "label": "tight_gate",
+      "metrics": {
+        "outcome": "near",
+        "reason": "tight_gate",
+        "feasible": true,
+        "gateCount": 4,
+        "minClearance": 0.06816290949442028,
+        "peakTrackingError": 2.1007562077352397,
+        "peakSpeed": 19.857290111490734,
+        "speedLimit": 22.22222222222222,
+        "peakOverspeed": 0,
+        "saturationFraction": 0.30439560439560437,
+        "landed": true,
+        "score": 0.06816290949442028
+      },
+      "events": [
+        {
+          "kind": "glass",
+          "gate": 0,
+          "t": 3.3000000000000003,
+          "x": 67,
+          "y": 32,
+          "z": -31
+        },
+        {
+          "kind": "glass",
+          "gate": 1,
+          "t": 4.8500000000000005,
+          "x": 96,
+          "y": 28,
+          "z": -31
+        },
+        {
+          "kind": "glass",
+          "gate": 2,
+          "t": 6.95,
+          "x": 117,
+          "y": 28,
+          "z": -14
+        },
+        {
+          "kind": "glass",
+          "gate": 3,
+          "t": 8.6,
+          "x": 117,
+          "y": 24,
+          "z": 14
+        }
+      ],
+      "duration": 11.375,
+      "trajectoryHash": "36ef54c2"
+    },
+    {
+      "id": "JET-07",
+      "cloudIndex": 2976,
+      "params": {
+        "windX": -4.22608531,
+        "windZ": 1.96387443,
+        "windGust": 3.39820813,
+        "thrustScale": 1.11830235,
+        "massScale": 0.90769823,
+        "delay": 0.13257701,
+        "podLoss": 0.39341924,
+        "yawBias": -0.18401353,
+        "offsetZ": 0.62886827,
+        "speedScale": 1.0418532
+      },
+      "outcome": "safe",
+      "label": "completed",
+      "metrics": {
+        "outcome": "safe",
+        "reason": "completed",
+        "feasible": true,
+        "gateCount": 4,
+        "minClearance": 0.4502790850766909,
+        "peakTrackingError": 1.3313566695048726,
+        "peakSpeed": 19.74610354077107,
+        "speedLimit": 22.22222222222222,
+        "peakOverspeed": 0,
+        "saturationFraction": 0.0046875,
+        "landed": true,
+        "score": 0.4502790850766909
+      },
+      "events": [
+        {
+          "kind": "glass",
+          "gate": 0,
+          "t": 3.4250000000000003,
+          "x": 67,
+          "y": 32,
+          "z": -31
+        },
+        {
+          "kind": "glass",
+          "gate": 1,
+          "t": 5.075,
+          "x": 96,
+          "y": 28,
+          "z": -31
+        },
+        {
+          "kind": "glass",
+          "gate": 2,
+          "t": 7.325,
+          "x": 117,
+          "y": 28,
+          "z": -14
+        },
+        {
+          "kind": "glass",
+          "gate": 3,
+          "t": 9.075000000000001,
+          "x": 117,
+          "y": 24,
+          "z": 14
+        }
+      ],
+      "duration": 12,
+      "trajectoryHash": "180ae72e"
+    }
+  ]
+}

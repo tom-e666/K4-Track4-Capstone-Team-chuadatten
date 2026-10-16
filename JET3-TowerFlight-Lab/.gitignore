@@ -1,0 +1,5 @@
+# Keep the reproducible bundled dataset even though the parent repo ignores evidence/.
+!/evidence/
+evidence/*
+!evidence/jet-stunt/
+!evidence/jet-stunt/*.json
