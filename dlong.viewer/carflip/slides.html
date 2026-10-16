@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Car Flip Recovery – Slides</title>
+<style>
+/* 16:9 stage (1600x900) scaled to the window. Colours match the simulator:
+   teal = our system, red = failure, gold = warning, blue = estimate / sensors, grey = baseline. */
+:root {
+  --bg: #e7ecf1; --paper: #fafbfc; --ink: #17202b; --ink-2: #485364; --ink-3: #788395; --line: #d3d9e1; --chip: #e9edf2;
+  --teal: #158f78; --teal-2: #d5efe8; --red: #d2453a; --red-2: #f8dedb; --gold: #cf7f12; --gold-2: #f7e6cc; --blue: #1f8fb5; --blue-2: #d6ecf4;
+  --green: #3f8f2a; --grey: #8a929c; --yellow: #c9a400; --orange: #e07b2e;
+  --f-ui: "Be Vietnam Pro", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --f-mono: "JetBrains Mono", "Cascadia Mono", Consolas, ui-monospace, monospace;
+}
+html, body { margin: 0; height: 100%; background: #1b222b; overflow: hidden; }
+* { box-sizing: border-box; }
+#stage { position: absolute; left: 50%; top: 50%; width: 1600px; height: 900px; transform-origin: 0 0; }
+.slide { position: absolute; inset: 0; background: var(--paper); color: var(--ink); font: 26px/1.45 var(--f-ui); padding: 70px 90px 80px; display: none; flex-direction: column; overflow: hidden; }
+.slide.on { display: flex; }
+.eyebrow { font: 600 17px var(--f-mono); letter-spacing: .14em; text-transform: uppercase; color: var(--teal); margin-bottom: 10px; }
+h1 { font: 800 76px/1.05 var(--f-ui); letter-spacing: -.025em; margin: 0; }
+h2 { font: 750 50px/1.12 var(--f-ui); letter-spacing: -.02em; margin: 0 0 30px; max-width: 1350px; text-wrap: balance; }
+h3 { font: 700 27px/1.25 var(--f-ui); margin: 0 0 10px; }
+p { margin: 0 0 14px; color: var(--ink-2); max-width: 62ch; }
+b { color: var(--ink); }
+ul { margin: 0; padding-left: 1.1em; color: var(--ink-2); } li { margin: 0 0 10px; } li::marker { color: var(--teal); }
+.k { font-family: var(--f-mono); font-size: .9em; }
+.c-teal { color: var(--teal); } .c-red { color: var(--red); } .c-gold { color: var(--gold); } .c-blue { color: var(--blue); } .c-grey { color: var(--grey); }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 50px; flex: 1; min-height: 0; }
+.grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+.card { background: var(--chip); border-radius: 18px; padding: 22px 28px; }
+.card.teal { background: var(--teal-2); } .card.red { background: var(--red-2); } .card.gold { background: var(--gold-2); } .card.blue { background: var(--blue-2); }
+.card p, .card li { font-size: 22px; } .card ul { padding-left: 1em; }
+.big { font: 800 92px/1 var(--f-ui); letter-spacing: -.03em; }
+.big small { font-size: 34px; font-weight: 700; color: var(--ink-3); letter-spacing: 0; }
+.tag { display: inline-block; font: 600 17px var(--f-mono); padding: 4px 12px; border-radius: 999px; background: var(--chip); color: var(--ink-2); margin: 0 8px 8px 0; }
+table { border-collapse: collapse; width: 100%; font-size: 23px; }
+th, td { text-align: left; padding: 12px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font: 600 16px var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
+td.n { font: 600 22px var(--f-mono); text-align: right; white-space: nowrap; }
+tr.hl td { background: var(--teal-2); }
+svg { display: block; }
+svg text { font-family: var(--f-ui); }
+.foot { position: absolute; left: 90px; right: 90px; bottom: 28px; display: flex; justify-content: space-between; font: 600 15px var(--f-mono); color: var(--ink-3); }
+.note { font-size: 19px; color: var(--ink-3); }
+.btn { display: inline-block; font: 700 24px var(--f-ui); padding: 16px 28px; border-radius: 14px; background: var(--ink); color: var(--paper); text-decoration: none; margin: 0 14px 14px 0; }
+.btn.alt { background: var(--chip); color: var(--ink); border: 2px solid var(--line); }
+.steps { counter-reset: s; list-style: none; padding: 0; }
+.steps li { counter-increment: s; position: relative; padding-left: 62px; margin-bottom: 18px; color: var(--ink-2); }
+.steps li::before { content: counter(s); position: absolute; left: 0; top: -2px; width: 42px; height: 42px; border-radius: 50%; background: var(--teal); color: #fff; font: 700 21px/42px var(--f-mono); text-align: center; }
+.title-slide { background: linear-gradient(135deg, #f6f8fa 0%, #e2eef0 100%); justify-content: center; }
+.title-slide .sub { font-size: 32px; color: var(--ink-2); margin-top: 26px; max-width: 34ch; }
+
+/* chrome outside the stage */
+#bar { position: fixed; left: 0; bottom: 0; height: 4px; background: var(--teal); transition: width .25s; z-index: 3; }
+#count { position: fixed; right: 14px; bottom: 10px; font: 600 13px var(--f-mono); color: #9aa6b4; z-index: 3; }
+#help { position: fixed; left: 14px; bottom: 10px; font: 13px var(--f-ui); color: #9aa6b4; z-index: 3; }
+#notes { position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%); width: min(1100px, 92vw); max-height: 36vh; overflow: auto; z-index: 4;
+  background: rgba(16,21,28,.94); color: #e8ecf0; font: 17px/1.5 var(--f-ui); padding: 14px 20px; border-radius: 12px; border: 1px solid #3a4552; }
+#notes[hidden] { display: none; }
+#notes b { color: #fff; }
+@media print { html, body { overflow: visible; background: #fff; } #stage { position: static; transform: none !important; } .slide { position: relative; display: flex !important; page-break-after: always; } #bar, #count, #help, #notes { display: none !important; } }
+</style>
+</head>
+<body>
+<div id="stage">
+
+<!-- 1 -->
+<section class="slide title-slide" data-notes="<b>Mở đầu (15 s).</b> Giới thiệu nhóm và một câu: chúng em mô phỏng xe bị lật khi bay khỏi mặt đường, và hệ thống trên xe tự phát hiện, ước lượng tư thế, điều chỉnh để tiếp đất bằng bánh.">
+  <div class="eyebrow">Track 4 · Capstone · Team chuadatten</div>
+  <h1>Car Flip Recovery</h1>
+  <div class="sub">Phát hiện lật từ IMU và đưa xe về tư thế bánh xuống trước khi chạm đất — mô phỏng cho bài toán an toàn của <b>VinFast</b>.</div>
+  <div style="margin-top:46px"><span class="tag">Mô phỏng vật lý 6 bậc tự do</span><span class="tag">IMU 100 Hz</span><span class="tag">Ước lượng tư thế</span><span class="tag">Monte Carlo</span></div>
+</section>
+
+<!-- 2 -->
+<section class="slide" data-notes="<b>Bài toán và người dùng (45 s).</b> Người dùng là đội kiểm thử an toàn/ADAS. Phần dùng được ngay là phát hiện lật và ước lượng tư thế từ IMU, thứ quyết định túi khí rèm và eCall. Vòi phun là phần concept, chạy trên cùng khung mô phỏng. ⚠ Nếu nêu thống kê lật xe (ví dụ của NHTSA) thì phải kiểm tra nguồn trước khi nói.">
+  <div class="eyebrow">Bài toán · người dùng</div>
+  <h2>Lật xe hiếm, nhưng là kiểu tai nạn nguy hiểm — và rất khó thử nghiệm</h2>
+  <div class="grid2">
+    <div>
+      <h3>Người dùng: đội kiểm thử an toàn & ADAS của VinFast</h3>
+      <ul>
+        <li>Thuật toán <b>phát hiện lật từ IMU</b> quyết định khi nào bung túi khí rèm và gọi khẩn cấp (eCall).</li>
+        <li>Crash test lật thật: đắt, mỗi lần chỉ thử <b>một</b> kịch bản.</li>
+        <li>Cần thử thuật toán trên <b>hàng nghìn kịch bản lật</b> trước khi ra xe thật.</li>
+      </ul>
+    </div>
+    <div class="card teal">
+      <h3>Chúng em làm</h3>
+      <ul>
+        <li>Mô phỏng xe lao khỏi đường, lật trên không, tiếp đất.</li>
+        <li>IMU giả lập có nhiễu → <b>phát hiện rơi tự do</b> → <b>ước lượng tư thế</b>.</li>
+        <li>Concept: <b>12 vòi phun khí lạnh</b> xoay xe về bánh xuống.</li>
+        <li>Đo trên 100 kịch bản ngẫu nhiên, có ca lỗi và giới hạn.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 3 -->
+<section class="slide" data-notes="<b>Kịch bản (30 s).</b> Không bịa cơ chế lật: chọn ba cơ chế có thật. Kịch bản chính là đường đắp cao có gờ đất ở mép, rất hay gặp ở Việt Nam. Lật do vấp là dạng phổ biến nhất nhưng thời gian bay quá ngắn — đó là ca lỗi vật lý.">
+  <div class="eyebrow">Kịch bản lật · cơ chế có thật</div>
+  <h2>Xe lao qua gờ đất ở mép đường đắp cao, lăn và bay xuống ruộng</h2>
+  <svg id="xsec" viewBox="0 0 1420 330" width="1420" height="330" aria-label="Mặt cắt ngang đường đắp: mặt đường, gờ đất, mái taluy, ruộng và quỹ đạo của xe"></svg>
+  <div class="grid3" style="margin-top:22px">
+    <div class="card teal"><h3>Gờ đất mép taluy</h3><p>Bánh một bên leo lên gờ → xe lăn, bay <b>~1,1–1,4 s</b>. Đủ thời gian để can thiệp.</p></div>
+    <div class="card red"><h3>Trượt ngang vào lề mềm</h3><p>Lật do vấp — dạng phổ biến nhất. Bay chỉ <b>~0,3–0,5 s</b>: ca lỗi vật lý.</p></div>
+    <div class="card"><h3>Bị húc hông</h3><p>Xung lực vào hông sau → xe xoay, trượt ra mép đường. Đầu vào thứ ba cho giám khảo thử.</p></div>
+  </div>
+</section>
+
+<!-- 4 -->
+<section class="slide" data-notes="<b>Hệ thống (45 s).</b> Đi theo mũi tên. Ý quan trọng: gia tốc kế đo lực đỡ, không đo trọng lực. Trên đường đọc 1 g, khi bay đọc gần 0 g — vừa là tín hiệu phát hiện rơi tự do, vừa là lý do không được dùng nó để tính độ nghiêng lúc bay. Biểu đồ bên phải là dữ liệu thật từ mô phỏng.">
+  <div class="eyebrow">Hệ thống · mỗi vòng 10 ms</div>
+  <h2>Từ cảm biến đến vòi phun</h2>
+  <svg id="pipe" viewBox="0 0 1420 230" width="1420" height="230" aria-label="Luồng xử lý: IMU, phát hiện rơi tự do, ước lượng tư thế, bộ điều khiển, vòi phun, vật lý"></svg>
+  <div class="grid2" style="margin-top:26px;gap:40px">
+    <div>
+      <ul style="font-size:23px">
+        <li><b>IMU 100 Hz:</b> gyro (có độ lệch + nhiễu), gia tốc kế (nhiễu, bão hoà ±16 g). GNSS 10 Hz.</li>
+        <li><b>Rơi tự do:</b> |f| &lt; 0,4 g liên tục 30 ms.</li>
+        <li><b>Tư thế (quaternion):</b> tích phân gyro; chỉ dùng gia tốc kế khi |f| ≈ 1 g và xe không bay.</li>
+        <li><b>Điều khiển:</b> PD → mô-men cần → bật các vòi có r × F cùng dấu. Van trễ 20 ms.</li>
+      </ul>
+    </div>
+    <div>
+      <svg id="fchart" viewBox="0 0 660 300" width="660" height="300" aria-label="Độ lớn gia tốc kế theo thời gian trong một lần chạy"></svg>
+      <div class="note">|f| gia tốc kế, lần chạy mặc định (dữ liệu mô phỏng). Vùng xanh: xe đang bay.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 -->
+<section class="slide" data-notes="<b>Demo (4 phút).</b> Mở index.html#demo, dùng phím → để đi từng cảnh và nói theo phụ đề. Cảnh 2 mời giám khảo bấm R để ra kịch bản của họ. Nếu demo hỏng: mở video dự phòng và nói rõ đó là video.">
+  <div class="eyebrow">Demo trực tiếp · 4 phút</div>
+  <h2>Chạy thử ngay — kể cả với kịch bản giám khảo chọn</h2>
+  <div class="grid2">
+    <ol class="steps">
+      <li>Kịch bản mặc định: <span class="c-grey">không vòi phun → lật ngửa</span>, <span class="c-teal">có vòi phun → tiếp đất nghiêng 5°</span>.</li>
+      <li><b>Giám khảo chọn:</b> kéo thanh trượt hoặc bấm <span class="k">R</span> (kịch bản ngẫu nhiên).</li>
+      <li>Ca lỗi: đổi sang bộ lọc <b>Ngây thơ</b>, bật khung tư thế ước lượng.</li>
+      <li>Phòng lab: mỗi chấm một kịch bản, bấm chấm đỏ để chạy lại.</li>
+    </ol>
+    <div>
+      <a class="btn" href="index.html#demo" target="_blank">▶ Demo tự chạy (#demo)</a><br>
+      <a class="btn alt" href="index.html" target="_blank">Mô phỏng tự thao tác</a><br>
+      <a class="btn alt" href="index.html#mc100" target="_blank">Mở kèm Monte Carlo 100</a>
+      <p class="note" style="margin-top:20px">Chạy offline trên trình duyệt, không cần cài đặt. Dự phòng: video quay sẵn.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 6 -->
+<section class="slide" data-notes="<b>Số đo (40 s).</b> 100 kịch bản ngẫu nhiên, mỗi kịch bản chạy 4 cấu hình với cùng seed nên là so sánh theo cặp. Khoảng tin cậy 95% theo Wilson. Lệnh tái lập: node bench.js 100. Cận trên 'tư thế thật' chỉ hơn 'có cổng' 2 kịch bản → phần ước lượng gần như không còn là nút thắt.">
+  <div class="eyebrow">Bằng chứng · số đo</div>
+  <h2>83/100 kịch bản tiếp đất an toàn, so với 7/100 khi không có vòi phun</h2>
+  <div class="grid2" style="grid-template-columns:1.05fr 1fr">
+    <svg id="bars" viewBox="0 0 720 470" width="720" height="470" aria-label="Tỉ lệ tiếp đất an toàn của bốn cấu hình, có khoảng tin cậy 95%"></svg>
+    <div>
+      <table>
+        <tr><th>Cấu hình</th><th style="text-align:right">An toàn</th><th style="text-align:right">KTC 95%</th></tr>
+        <tr><td>Không vòi phun</td><td class="n">7/100</td><td class="n">3–14%</td></tr>
+        <tr class="hl"><td><b>Có cổng</b> (gyro khi bay)</td><td class="n">83/100</td><td class="n">74–89%</td></tr>
+        <tr><td>Ngây thơ (ca lỗi)</td><td class="n">64/100</td><td class="n">54–73%</td></tr>
+        <tr><td>Tư thế thật (cận trên)</td><td class="n">85/100</td><td class="n">77–91%</td></tr>
+      </table>
+      <p class="note" style="margin-top:18px">An toàn = bánh xuống, nghiêng ≤ 25°, vận tốc rơi ≤ 9 m/s, nóc không chạm đất. Cứu được 77/93 ca mà xe không vòi phun hỏng. Tái lập: <span class="k">node bench.js 100</span>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 7 -->
+<section class="slide" data-notes="<b>Ca lỗi (40 s).</b> Đây là lỗi kinh điển: bộ lọc bù coi gia tốc kế là hướng lên. Khi rơi tự do nó chỉ đo nhiễu, khi vòi phun bật nó đo lực đẩy. Cùng kịch bản seed 38: có cổng sai 0,3°, ngây thơ sai 18° và tiếp đất cứng. Cách sửa: cổng tin cậy theo |f| và trạng thái bay. Ca lỗi thứ hai: lật do vấp — giới hạn vật lý, không phải phần mềm.">
+  <div class="eyebrow">Bằng chứng · ca lỗi</div>
+  <h2>Tin gia tốc kế khi đang bay → xe “tưởng” mình nghiêng sai 18°</h2>
+  <div class="grid2" style="gap:36px">
+    <div>
+      <svg id="tiltG" viewBox="0 0 660 230" width="660" height="230" aria-label="Có cổng: độ nghiêng thật và ước lượng gần trùng nhau"></svg>
+      <svg id="tiltN" viewBox="0 0 660 230" width="660" height="230" style="margin-top:12px" aria-label="Ngây thơ: độ nghiêng ước lượng lệch khỏi độ nghiêng thật"></svg>
+      <div class="note"><span class="c-teal">━ nghiêng thật</span> &nbsp; <span style="color:#3b4fd8">┅ xe tự ước lượng</span> &nbsp; cùng kịch bản (seed 38), dữ liệu mô phỏng</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="card red"><h3>Vì sao sai</h3><p>Gia tốc kế đo <b>lực đỡ</b>, không đo trọng lực. Khi rơi tự do nó đọc ≈ 0 g (chỉ còn nhiễu); khi vòi phun bật nó đo <b>lực đẩy</b>. Bộ lọc ngây thơ coi đó là “hướng lên”.</p></div>
+      <div class="card teal"><h3>Cách sửa</h3><p>Chỉ dùng gia tốc kế khi |f| ≈ 1 g <b>và</b> xe không bay; lúc bay chỉ tích phân gyro (trôi ~1° trong 1 s). Kết quả: sai số lúc chạm <b>3,0° so với 10,5°</b>, an toàn <b>83 so với 64</b>/100.</p></div>
+      <div class="card"><h3>Ca lỗi thứ hai: lật do vấp</h3><p>Bay chỉ 0,3–0,5 s, cần mô-men lớn hơn 10–20 lần → vòi phun không kịp. Giới hạn vật lý, không phải lỗi phần mềm.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 8 -->
+<section class="slide" data-notes="<b>Trụ cột (30 s).</b> Chỉ cần nêu 3–4 trụ cột mạnh nhất và chỉ ra vị trí trong code: Bất định (cổng tin cậy), Thời gian (100 Hz, trễ van, độ trễ phát hiện), Biểu diễn (quaternion), Bằng chứng (Monte Carlo + Wilson). Cột 'vì sao' là phần giám khảo chấm điểm xuất sắc.">
+  <div class="eyebrow">Kiến thức Track 4 · ở đâu trong hệ thống</div>
+  <h2>6 trụ cột, và vì sao chọn cách này</h2>
+  <table style="font-size:22px">
+    <tr><th style="width:15%">Trụ cột</th><th style="width:43%">Nằm ở đâu</th><th>Vì sao chọn</th></tr>
+    <tr><td><b>Bất định</b></td><td>Gyro có độ lệch + nhiễu; cổng tin cậy cho gia tốc kế</td><td>Khi bay gia tốc kế không còn đo được “hướng lên”</td></tr>
+    <tr><td><b>Thời gian</b></td><td>IMU & điều khiển 100 Hz, GNSS 10 Hz, van trễ 20 ms, phát hiện trong 30 ms, thời gian tới lúc chạm đất</td><td>Chỉ có ~1 s để xoay xe; mỗi 10 ms đều đáng kể</td></tr>
+    <tr><td><b>Biểu diễn</b></td><td>Trạng thái [p, v, q, ω], tư thế bằng quaternion; kết quả mã hoá 4 mức</td><td>Góc Euler bị khoá (gimbal lock) khi xe chúc 90°</td></tr>
+    <tr><td><b>Hình học</b></td><td>Hệ toạ độ thân xe ↔ thế giới; f = Rᵀ(a − g); τ = r × F</td><td>Chọn vòi nào bật = dấu của r × F</td></tr>
+    <tr><td><b>Dữ liệu</b></td><td>Log CSV 100 Hz mỗi lần chạy; chạy lại tất định theo seed</td><td>Mọi chấm trong phòng lab đều phát lại được</td></tr>
+    <tr><td><b>Bằng chứng</b></td><td>Monte Carlo so sánh theo cặp, KTC Wilson, ca lỗi, giới hạn</td><td>Không kết luận từ một lần chạy đẹp</td></tr>
+  </table>
+</section>
+
+<!-- 9 -->
+<section class="slide" data-notes="<b>Impact (30 s).</b> Con số chắc chắn là thông lượng mô phỏng: 100 kịch bản trong khoảng 5–10 s trên laptop. Chi phí một crash test thật: nhóm điền nếu có nguồn, không thì nói định tính. Nêu rủi ro: mô hình chưa hiệu chuẩn với dữ liệu thật.">
+  <div class="eyebrow">Impact · mở rộng · rủi ro</div>
+  <h2>Thử thuật toán phát hiện lật trên hàng nghìn kịch bản trước khi crash test</h2>
+  <div class="grid3">
+    <div class="card teal"><div class="big">100<small> kịch bản</small></div><p style="margin-top:12px">× 4 cấu hình trong <b>~5–10 s</b> trên laptop (đo bằng <span class="k">bench.js</span>) — <b>hàng chục nghìn kịch bản/giờ</b>, so với 1 kịch bản cho mỗi crash test thật.</p></div>
+    <div class="card"><h3>Đường mở rộng</h3><ul><li>Hiệu chuẩn bằng log IMU thật (điện thoại, xe thử).</li><li>Đưa thuật toán phát hiện vào bài kiểm thử HIL.</li><li>Thêm dạng lật: dốc, khúc cua, va chạm hai xe.</li></ul></div>
+    <div class="card gold"><h3>Rủi ro</h3><ul><li>Thông số xe & vòi phun là <b>giả định</b>.</li><li>Tiếp xúc đơn giản hoá, thân xe không biến dạng.</li><li>Vòi phun trên ô tô mới là <b>concept</b>.</li></ul></div>
+  </div>
+  <div class="card blue" style="margin-top:28px;display:flex;gap:40px;align-items:center">
+    <div><h3 style="margin:0">Ngân sách concept vòi phun</h3><p class="note" style="margin:4px 0 0">xe SUV ~2 t, giả định</p></div>
+    <div style="font:600 23px var(--f-mono);color:var(--ink)">hệ thống 45 kg (+2,3 %) · N₂ 15 kg ≈ 48 L @ 300 bar · 4 vòi phun liên tục ~0,96 s · tổng xung 9,6 kN·s</div>
+  </div>
+</section>
+
+<!-- 10 -->
+<section class="slide" data-notes="<b>Giới hạn (20 s).</b> Nói thẳng những gì CHƯA chứng minh. Giám khảo chấm điểm bằng chứng xuất sắc khi nêu rõ giới hạn.">
+  <div class="eyebrow">Giới hạn · những gì chưa chứng minh</div>
+  <h2>Kết quả đúng trong mô phỏng, và chỉ trong mô phỏng</h2>
+  <div class="grid2">
+    <ul>
+      <li>Số đo chỉ có giá trị <b>so sánh tương đối</b> giữa các cấu hình, không phải xác suất ngoài đời.</li>
+      <li>Monte Carlo chỉ chạy trên kịch bản <b>gờ taluy</b>, trong dải tham số đã chọn.</li>
+      <li>“Mức chấn thương” là chỉ báo theo cách tiếp đất, <b>không phải mô hình chấn thương</b>.</li>
+    </ul>
+    <ul>
+      <li>Khối lượng, quán tính, lò xo, lực vòi phun: <b>giả định</b>, không theo thông số hãng nào.</li>
+      <li>Bộ điều khiển chỉ lo đến lúc chạm đất; vài ca xe đứng bánh rồi trượt trên mái taluy và lật tiếp.</li>
+      <li>Chưa kiểm chứng với dữ liệu IMU hay crash test thật.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 11 -->
+<section class="slide title-slide" data-notes="<b>Hỏi đáp (3 phút).</b> Câu dễ bị hỏi: thông số lấy từ đâu (giả định, ghi trong README); vì sao không dùng PyBullet/MuJoCo (cần tất định, chạy trên trình duyệt để giám khảo chỉnh, hiểu từng dòng mô hình cảm biến); lật do vấp thì sao (giới hạn vật lý; phần dùng được là phát hiện lật cho túi khí).">
+  <div class="eyebrow">Cảm ơn</div>
+  <h1>Hỏi đáp</h1>
+  <div class="sub">Repo: <span class="k" style="font-size:.8em">github.com/tom-e666/K4-Track4-Capstone-Team-chuadatten</span><br>Mô phỏng: <span class="k" style="font-size:.8em">dlong.viewer/carflip/index.html</span></div>
+</section>
+
+</div>
+<div id="bar"></div><div id="count"></div><div id="help">← → chuyển slide · F toàn màn hình · N ghi chú người nói</div>
+<div id="notes" hidden></div>
+
+<script>
+(function () {
+  "use strict";
+  var DATA = {"fmag":[1.02,1.01,0.98,1.01,1,0.97,1.03,1.03,1.03,1.03,0.94,1.02,1.02,1.01,1.03,1.02,0.99,1.03,1.67,1.62,2.65,2.3,1.83,1.54,1.99,1.9,1.73,1.6,1.46,1.33,1.22,0.64,1.28,1.31,1.37,1.34,1.35,1.01,1.85,1.57,1.4,1.16,0.99,0.87,0.71,0.58,0.57,0.29,0.27,0.24,0.22,0.3,0.37,0.41,0.41,0.5,0.06,0.02,0.04,0.04,0.05,0.07,0.08,0.04,0.03,0.04,0.03,0.01,0.06,0.03,0.04,0.05,0.03,0.08,0.03,0.06,0.05,0.03,0.04,0.04,0.06,0.47,0.46,0.51,0.57,0.55,0.44,0.46,0.52,0.48,0.5,0.52,0.5,0.47,0.5,0.55,0.52,0.47,0.52,0.53,0.49,0.47,0.53,0.47,0.58,0.47,0.5,0.51,0.52,0.47,0.5,0.5,2.5,6.71,7.12,9.33,12.42,6.98,7.06,3.64,2.3,1.96,1.64,1.37,1.11,0.95,0.74,0.65,0.61,0.51,0.44,0.4,0.42,0.42,0.46,0.44,0.47,0.57,0.63,0.68,0.71,0.78,0.82,0.86,0.89,0.92,0.98,1,0.99,0.99,1.09,1.09,1.09,1.06,1.06,1.05,1.05,1.05,1.07,1.04,1.03,1.08,1.03,1.01,1,1,0.97,1.02,0.98,1,1,1.01,0.97,0.99,0.97,0.99,0.98,0.96,0.96,0.97,1.05,1.04,0.95,1.01,1.02,1.02,1.01,1.02,1.04,0.95,0.98,0.98,1.03,1.01,0.99,1,0.99,1.03,1.02,0.99,0.97,1,1,1.02,0.98,1.01,1,0.98,1.02,1.03,0.97,1,0.97,1.02,0.94,1,1.02,1.03,1,1.01,0.99,1,0.97,1.02,1.02,0.99,1.01,1.01,0.97,1,1.01,0.99,0.98,1.02,0.99,0.96,1.02,0.99,1,1.01,1.03,1.03,1.01,0.97,1.03,1.01,1.01,0.97,1.01,0.96,1,0.97,1.03,1.03,0.98,1,1.03,1.04,1,0.99,1.05,0.99,0.96,1.03,0.96,0.99,0.96,1,1.05,1.02,1.02,1.02,0.96,1,1.01,0.99,1.04,0.99,0.98,1.01,1.02,0.97,0.97,1.02,1.03,1,1.03,1.02,1,1,1.03,1.03,1.07,1,0.95,1.01,0.99,1.03,1.02,1.02,0.99],"air":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],"g_t":[0,0,0.01,0.01,0.02,0.03,0.03,0.03,1.22,3.88,6.7,9.68,12.51,15.4,18.34,20.71,21.96,21.88,20.58,18.39,15.44,11.92,8.41,5.86,4.76,4.83,4.88,4.59,4.31,4.08,3.89,3.76,3.68,3.66,3.71,3.81,4.01,3.91,3.61,3.36,3.19,3.11,3.08,3.06,3.06,3.07,3.09,3.12,3.17,3.22,3.29,3.36,3.45,3.54,3.27,1.68,0.38,0.34,0.14,0.05,0.1,0.13,0.14,0.16,0.31,0.39,0.44,0.46,0.42,0.34,0.25,0.17,0.09,0.04,0.03,0.06,0.07,0.08,0.08,0.07,0.07,0.06,0.05,0.05,0.04,0.04,0.03,0.03,0.03,0.03,0.03,0.03,0.03,0.03,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04],"g_e":[1.45,0.96,0.76,0.71,0.77,0.57,0.45,0.11,1.35,4.05,6.84,9.83,11.21,12.56,15.47,18.6,21.11,20.72,19.15,16.74,13.56,9.75,5.92,2.8,1.49,2.47,2.74,2.26,1.83,1.4,0.96,0.51,0.19,0.48,0.91,1.35,1.79,1.52,1.01,0.59,0.51,0.73,0.9,1.1,1.31,1.52,1.74,1.94,2.16,2.37,2.6,2.81,3,3.22,3.1,2.94,4.3,4.25,4.1,3.47,3.44,3.44,3.47,3.49,3.38,3.35,3.32,3.33,3.4,3.5,3.58,3.67,3.75,3.82,3.9,3.43,3.2,2.57,2.33,1.91,1.55,1.36,1.3,1.28,1.08,1.13,1.2,1.06,1.13,1.19,1.25,1.37,1.14,1.13,1.02,0.79,0.66,0.82,1.02,1.12,0.96,1.3,1.23,0.94,0.67,0.71,0.75,0.79,0.84,0.85,0.86,1.15,1.01,0.99,1.1,1.22,1.18,1.03,0.93,1.06,1.12,1.15,1.07,1.2,1.14,1.17,1.37,1.13,1.15,1.17,1.14,0.98,1.19,0.85,0.93,0.66,0.9,0.97,0.94,0.85,0.67,0.82,0.98,1,0.85,0.9,0.98,0.95,0.93,0.93,0.91],"n_t":[0,0,0.01,0.01,0.02,0.03,0.03,0.03,1.22,3.88,6.7,9.68,12.51,15.4,18.34,20.71,21.96,21.88,20.58,18.39,15.44,11.92,8.41,5.85,4.69,4.73,5.31,5.63,5.66,5.76,6.14,6.54,6.91,7.33,7.83,8.54,9.23,10.35,11.62,12.88,14.15,15.37,16.13,16.83,17.49,18.13,18.76,19.09,19.26,19.42,19.59,19.73,19.82,16.89,8.14,1.33,0.99,0.64,0.65,0.66,0.61,0.53,0.43,0.34,0.43,0.55,0.56,0.51,0.5,0.45,0.37,0.27,0.18,0.09,0.03,0.02,0.05,0.07,0.08,0.08,0.08,0.07,0.06,0.05,0.05,0.04,0.04,0.03,0.03,0.03,0.03,0.03,0.03,0.03,0.03,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04],"n_e":[1.45,0.96,0.76,0.71,0.77,0.57,0.45,0.99,5.67,8.27,7.2,5.6,2.85,0.18,6.03,11.9,16.68,18.49,19.02,18.21,16.45,12.98,7.37,3.68,2.29,4.78,1.83,1.99,7.82,7.65,7.18,13.2,14.17,13.2,15.46,15.7,14.7,13.3,17.65,13.48,10.7,6.92,5.66,3.82,2.31,1.24,0.54,0.41,0.49,0.73,0.68,1.09,1.66,2.67,6.49,12.98,15.22,14.15,12.03,10.25,8.76,8,6.53,5.41,4.43,3.47,2.44,1.72,1.58,1,1.22,0.94,0.95,1.07,0.99,0.86,0.88,0.83,0.88,0.78,0.67,0.6,0.64,0.78,0.63,0.79,0.9,0.8,0.95,1.05,1.13,1.27,1.05,1.07,0.96,0.74,0.62,0.79,1,1.1,0.95,1.28,1.23,0.93,0.66,0.7,0.75,0.79,0.83,0.85,0.86,1.15,1.01,0.99,1.09,1.22,1.18,1.03,0.93,1.06,1.12,1.15,1.07,1.2,1.14,1.17,1.37,1.13,1.15,1.17,1.14,0.98,1.19,0.85,0.93,0.66,0.9,0.97,0.94,0.85,0.67,0.82,0.98,1,0.85,0.9,0.98,0.95,0.93,0.93,0.91],"ge":0.26797032356262207,"ne":18.16476535797119};
+  var NS = "http://www.w3.org/2000/svg";
+  function css(k) { return getComputedStyle(document.documentElement).getPropertyValue("--" + k).trim(); }
+  function el(svg, tag, attrs, text) { var e = document.createElementNS(NS, tag); for (var k in attrs) e.setAttribute(k, attrs[k]); if (text != null) e.textContent = text; svg.appendChild(e); return e; }
+  function path(pts) { return pts.map(function (p, i) { return (i ? "L" : "M") + p[0].toFixed(1) + " " + p[1].toFixed(1); }).join(""); }
+
+  // ---------------------------------------------------------------- cross-section of the embankment (slide 3), same geometry as core.js
+  (function () {
+    var s = document.getElementById("xsec"), W = 1420, sx = function (z) { return 40 + (z + 8) * 42; }, sy = function (y) { return 120 - y * 34; };
+    var prof = [[-8, 0], [5, 0], [6.4, 0.7], [11.1, -4], [24, -4]];
+    el(s, "path", { d: path(prof.map(function (q) { return [sx(q[0]), sy(q[1])]; })) + "L" + sx(24) + " 330L" + sx(-8) + " 330Z", fill: "#dfe6d2" });
+    el(s, "path", { d: "M" + sx(-3.5) + " " + sy(0) + "H" + sx(3.5), stroke: "#8d969f", "stroke-width": 10 });
+    el(s, "path", { d: path([[sx(5), sy(0)], [sx(6.4), sy(0.7)], [sx(11.1), sy(-4)]]), stroke: "#9c8466", "stroke-width": 6, fill: "none" });
+    el(s, "path", { d: "M" + sx(11.1) + " " + sy(-4) + "H" + sx(24), stroke: "#93ad79", "stroke-width": 6 });
+    // trajectory with rolling car silhouettes
+    var arc = []; for (var u = 0; u <= 1.0001; u += 0.05) { var z = 6.4 + u * 11, y = 0.9 + 2.6 * u - 7.5 * u * u + 0.6; arc.push([sx(z), sy(Math.max(y, -3.4))]); }
+    el(s, "path", { d: path(arc), stroke: css("teal"), "stroke-width": 3, "stroke-dasharray": "10 8", fill: "none" });
+    [[1.8, 0, 0], [6.6, 1.3, 25], [9.6, 1.25, 70], [12.6, -0.4, 110], [16.6, -3.35, 175]].forEach(function (c, i) {
+      var g = el(s, "g", { transform: "translate(" + sx(c[0]) + "," + sy(c[1] + 0.2) + ") rotate(" + c[2] + ")", opacity: i === 4 ? 0.95 : 0.8 });
+      el(g, "rect", { x: -40, y: -26, width: 80, height: 24, rx: 5, fill: i === 4 ? css("red") : css("teal") });
+      el(g, "rect", { x: -26, y: -42, width: 52, height: 18, rx: 4, fill: "#2d3a48" });
+    });
+    el(s, "text", { x: sx(0), y: sy(0) + 40, "text-anchor": "middle", "font-size": 22, fill: css("ink-2") }, "mặt đường");
+    el(s, "text", { x: sx(5.7), y: sy(0.7) + 44, "text-anchor": "middle", "font-size": 22, fill: "#7a6448", "font-weight": 700 }, "gờ đất");
+    el(s, "text", { x: sx(7.2), y: sy(-2.6) + 20, "text-anchor": "end", "font-size": 22, fill: "#5f7a49" }, "mái taluy");
+    el(s, "text", { x: sx(21.6), y: sy(-4) - 14, "text-anchor": "middle", "font-size": 22, fill: "#5f7a49" }, "ruộng thấp hơn D mét");
+    el(s, "text", { x: sx(16.6), y: sy(-4) + 40, "text-anchor": "middle", "font-size": 22, fill: css("red"), "font-weight": 700 }, "không vòi phun: lật ngửa");
+    el(s, "path", { d: "M" + sx(12.2) + " " + sy(-4) + "V" + sy(0), stroke: css("ink-3"), "stroke-width": 1.5, "stroke-dasharray": "4 4" });
+    el(s, "text", { x: sx(12.2) + 10, y: sy(-2.6), "font-size": 20, fill: css("ink-3") }, "D = 2,5–6 m");
+  })();
+
+  // ---------------------------------------------------------------- pipeline (slide 4)
+  (function () {
+    var s = document.getElementById("pipe");
+    var boxes = [["IMU 100 Hz", "gyro ω · gia tốc kế f", "blue"], ["Phát hiện rơi tự do", "|f| < 0,4 g · 30 ms", "gold"], ["Ước lượng tư thế", "quaternion q̂, có cổng", "blue"],
+                 ["Bộ điều khiển PD", "τ = I(kₚφ − k_dω)", "teal"], ["12 vòi phun", "bật vòi có r×F cùng dấu", "teal"], ["Vật lý 1 kHz", "xe, mặt đất, khí nén", "grey"]];
+    var w = 200, gap = 40;
+    el(s, "defs", {}).innerHTML = '<marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" fill="' + css("ink-3") + '"/></marker>';
+    boxes.forEach(function (b, i) {
+      var x = i * (w + gap) + 4, col = css(b[2]);
+      el(s, "rect", { x: x, y: 20, width: w, height: 120, rx: 16, fill: "#fff", stroke: col, "stroke-width": 3 });
+      el(s, "text", { x: x + w / 2, y: 70, "text-anchor": "middle", "font-size": 22, "font-weight": 700, fill: css("ink") }, b[0]);
+      el(s, "text", { x: x + w / 2, y: 104, "text-anchor": "middle", "font-size": 17, fill: css("ink-2"), "font-family": "Consolas, monospace" }, b[1]);
+      if (i < boxes.length - 1) el(s, "path", { d: "M" + (x + w + 3) + " 80H" + (x + w + gap - 4), stroke: css("ink-3"), "stroke-width": 2.5, "marker-end": "url(#ar)" });
+    });
+    var x0 = 4 + w / 2, x5 = 5 * (w + gap) + 4 + w / 2;
+    el(s, "path", { d: "M" + x5 + " 142V196H" + x0 + "V146", stroke: css("ink-3"), "stroke-width": 2, "stroke-dasharray": "6 6", fill: "none", "marker-end": "url(#ar)" });
+    el(s, "text", { x: (x0 + x5) / 2, y: 222, "text-anchor": "middle", "font-size": 19, fill: css("ink-3") }, "tư thế mới của xe → IMU đo ở vòng sau (10 ms)");
+  })();
+
+  // ---------------------------------------------------------------- small line charts from real simulator output
+  function lineChart(id, series, opts) {
+    var s = document.getElementById(id), W = +s.getAttribute("width"), H = +s.getAttribute("height"), L = 58, B = 34, T = 14, R = 12;
+    var n = series[0].data.length, tEnd = 6, sx = function (i) { return L + i / (n - 1) * (W - L - R); }, sy = function (v) { return T + (1 - (v - opts.y0) / (opts.y1 - opts.y0)) * (H - T - B); };
+    el(s, "rect", { x: 0, y: 0, width: W, height: H, rx: 12, fill: "#eef2f5" });
+    if (opts.air) { var a = opts.air, m = a.length; for (var i = 0; i < m; i++) if (a[i]) el(s, "rect", { x: L + i / (m - 1) * (W - L - R), y: T, width: (W - L - R) / (m - 1) + 0.6, height: H - T - B, fill: "rgba(31,143,181,.16)" }); }
+    opts.ticks.forEach(function (v) { el(s, "path", { d: "M" + L + " " + sy(v) + "H" + (W - R), stroke: "#d3d9e1" }); el(s, "text", { x: L - 8, y: sy(v) + 6, "text-anchor": "end", "font-size": 16, fill: css("ink-3") }, v + opts.unit); });
+    for (var t = 0; t <= tEnd; t++) el(s, "text", { x: L + t / tEnd * (W - L - R), y: H - 10, "text-anchor": "middle", "font-size": 15, fill: css("ink-3") }, t + " s");
+    if (opts.hline) el(s, "path", { d: "M" + L + " " + sy(opts.hline[0]) + "H" + (W - R), stroke: opts.hline[1], "stroke-width": 2, "stroke-dasharray": "7 6" });
+    series.forEach(function (sr) { el(s, "path", { d: path(sr.data.map(function (v, i) { return [sx(i), sy(Math.min(opts.y1, v))]; })), stroke: sr.col, "stroke-width": sr.w || 3, fill: "none", "stroke-dasharray": sr.dash || "" }); });
+    if (opts.title) el(s, "text", { x: L + 12, y: T + 28, "font-size": 20, "font-weight": 700, fill: opts.titleCol || css("ink") }, opts.title);
+  }
+  lineChart("fchart", [{ data: DATA.fmag, col: css("blue"), w: 2.5 }], { y0: 0, y1: 3, ticks: [0, 1, 2, 3], unit: " g", air: DATA.air, hline: [0.4, css("gold")], title: "≈ 0 g khi bay · ngưỡng 0,4 g", titleCol: css("ink-2") });
+  lineChart("tiltG", [{ data: DATA.g_t, col: css("teal"), w: 4 }, { data: DATA.g_e, col: "#3b4fd8", w: 3, dash: "9 7" }],
+    { y0: 0, y1: 40, ticks: [0, 20, 40], unit: "°", title: "Có cổng: sai " + DATA.ge.toFixed(1).replace(".", ",") + "° lúc chạm → an toàn", titleCol: css("teal") });
+  lineChart("tiltN", [{ data: DATA.n_t, col: css("teal"), w: 4 }, { data: DATA.n_e, col: "#3b4fd8", w: 3, dash: "9 7" }],
+    { y0: 0, y1: 40, ticks: [0, 20, 40], unit: "°", title: "Ngây thơ: sai " + DATA.ne.toFixed(1).replace(".", ",") + "° lúc chạm → tiếp đất cứng", titleCol: css("red") });
+
+  // ---------------------------------------------------------------- Monte Carlo bars with Wilson intervals (slide 6)
+  (function () {
+    var s = document.getElementById("bars"), W = 720, H = 470, L = 70, B = 90, T = 20;
+    var rows = [["Không\nvòi phun", 7, 3, 14, "grey"], ["Có cổng", 83, 74, 89, "teal"], ["Ngây thơ\n(ca lỗi)", 64, 54, 73, "gold"], ["Tư thế thật\n(cận trên)", 85, 77, 91, "blue"]];
+    var sy = function (v) { return T + (1 - v / 100) * (H - T - B); }, bw = 110, step = (W - L - 20) / rows.length;
+    [0, 25, 50, 75, 100].forEach(function (v) { el(s, "path", { d: "M" + L + " " + sy(v) + "H" + (W - 10), stroke: "#d3d9e1" }); el(s, "text", { x: L - 10, y: sy(v) + 6, "text-anchor": "end", "font-size": 17, fill: css("ink-3") }, v + "%"); });
+    rows.forEach(function (r, i) {
+      var cx = L + step * (i + 0.5), col = css(r[4]);
+      el(s, "rect", { x: cx - bw / 2, y: sy(r[1]), width: bw, height: sy(0) - sy(r[1]), rx: 8, fill: col, opacity: r[4] === "grey" ? 0.55 : 0.9 });
+      el(s, "path", { d: "M" + cx + " " + sy(r[3]) + "V" + sy(r[2]) + "M" + (cx - 14) + " " + sy(r[3]) + "H" + (cx + 14) + "M" + (cx - 14) + " " + sy(r[2]) + "H" + (cx + 14), stroke: css("ink"), "stroke-width": 2.5 });
+      el(s, "text", { x: cx, y: sy(r[3]) - 12, "text-anchor": "middle", "font-size": 28, "font-weight": 800, fill: css("ink") }, r[1] + "%");
+      r[0].split("\n").forEach(function (ln, k) { el(s, "text", { x: cx, y: H - B + 34 + k * 26, "text-anchor": "middle", "font-size": 20, fill: css("ink-2"), "font-weight": k ? 400 : 600 }, ln); });
+    });
+  })();
+
+  // ---------------------------------------------------------------- navigation
+  var slides = [].slice.call(document.querySelectorAll(".slide")), cur = 0, stage = document.getElementById("stage"), notes = document.getElementById("notes");
+  slides.forEach(function (sl, i) { var f = document.createElement("div"); f.className = "foot"; f.innerHTML = "<span>Car Flip Recovery · Team chuadatten</span>"; if (!sl.classList.contains("title-slide")) sl.appendChild(f); });
+  function fit() { var k = Math.min(window.innerWidth / 1600, window.innerHeight / 900); stage.style.transform = "scale(" + k + ") translate(-50%, -50%)"; }
+  function show(i) {
+    cur = Math.max(0, Math.min(slides.length - 1, i));
+    slides.forEach(function (s, j) { s.classList.toggle("on", j === cur); });
+    document.getElementById("bar").style.width = (100 * (cur + 1) / slides.length) + "%";
+    document.getElementById("count").textContent = (cur + 1) + " / " + slides.length;
+    notes.innerHTML = slides[cur].getAttribute("data-notes") || "";
+    try { history.replaceState(null, "", "#" + (cur + 1)); } catch (e) {}
+  }
+  document.addEventListener("keydown", function (e) {
+    if (["ArrowRight", "PageDown", " ", "Enter"].indexOf(e.key) >= 0) { show(cur + 1); e.preventDefault(); }
+    else if (["ArrowLeft", "PageUp", "Backspace"].indexOf(e.key) >= 0) { show(cur - 1); e.preventDefault(); }
+    else if (e.key === "Home") show(0); else if (e.key === "End") show(slides.length - 1);
+    else if (e.key === "f" || e.key === "F") { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen().catch(function () {}); }
+    else if (e.key === "n" || e.key === "N") notes.hidden = !notes.hidden;
+  });
+  document.addEventListener("click", function (e) { if (e.target.closest("a, button, #notes")) return; show(cur + (e.clientX > window.innerWidth / 3 ? 1 : -1)); });
+  window.addEventListener("resize", fit);
+  fit(); show((parseInt(location.hash.slice(1), 10) || 1) - 1);
+})();
+</script>
+</body>
+</html>
